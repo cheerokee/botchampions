@@ -90,7 +90,7 @@ class IndexController extends AbstractActionController
 
                 /** reCaptcha! Google **/
                 $drequest['response'] = $data['g-recaptcha-response'];
-                $drequest['secret'] = '6Lc3VcIUAAAAAJXJCjF0a7_ssAVl_EnnFMGkzcbH';
+                $drequest['secret'] = '6LcvKtEUAAAAAKAe0dGCML__UBrc7vd2P-wxi0cv';
 
                 $response = $this->postService($drequest);
 
