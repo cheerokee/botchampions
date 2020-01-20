@@ -1,0 +1,124 @@
+<?php 
+use Admin\Entity\User;
+use Admin\Entity\Perfil;
+$return = $this->url('admin/defaults',array('controller'=>'users'));
+/**
+ * @var User $user
+ * @var Perfil $perfil
+ */
+$user = $this->user;
+$perfis = $this->perfis;
+$time = time($user->getCreatedAt());
+$data = date('d/m/Y',$time);
+
+if(!empty($this->userPerfis)){
+    foreach($this->userPerfis as $hasPerfil){
+        $hasPerfis[$hasPerfil->getId()]=$hasPerfil;
+    }
+    
+};
+
+?>
+<div id="ribbon">
+    <span class="ribbon-button-alignment">
+        <span id="refresh" class="btn btn-ribbon" data-action="resetWidgets" data-title="refresh"  rel="tooltip" data-placement="bottom" data-original-title="<i class='text-warning fa fa-warning'></i> Warning! This will reset all your widget settings." data-html="true">
+            <i class="fa fa-refresh"></i>
+        </span>
+    </span>
+    <ol class="breadcrumb">
+        <li>
+            <a href="/admin">
+                <i class="fa fa-dashboard"></i>&nbsp;Dashboard
+            </a>
+        </li>
+        <li>Usuários</li>
+    </ol>
+</div>
+<div class="col-md-12 flashMessages">
+    <?php
+    $flash  =  $this->flashMessenger ();
+    echo  $flash -> render ( 'error' ,    array ( 'alert' ,  'alert-dismissible' ,  'alert-danger' ));
+    echo  $flash -> render ( 'info' ,     array ( 'alert' ,  'alert-dismissible' ,  'alert-info' ));
+    echo  $flash -> render ( 'default' ,  array ( 'alert' ,  'alert-dismissible' ,  'alert-warning' ));
+    echo  $flash -> render ( 'success' ,  array ( 'alert' ,  'alert-dismissible' ,  'alert-success' ));
+
+    ?>
+</div>
+<br />
+<div id="content">
+    <div class="row">
+        <form role="form" method="POST" action="">
+            <article class="col-sm-12">
+                <div class="jarviswidget" id="wid-id-1"
+                     data-widget-togglebutton="false"
+                     data-widget-editbutton="false"
+                     data-widget-fullscreenbutton="false"
+                     data-widget-colorbutton="false"
+                     data-widget-deletebutton="false">
+                    <header>
+                        <span class="widget-icon">
+                            <i class="fa fa-users txt-color-darken"></i>
+                        </span>
+                        <h2>Seleção de perfil</h2>
+                    </header>
+                    <div class="padding-15">
+                        <div class="widget-body padding-top-10 padding-bottom-10">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <table class="table">
+                                        <thead>
+                                        <tr>
+                                            <th>Nome</th>
+                                            <th>E-mail</th>
+                                            <th>Telefone</th>
+                                            <th>Membro Desde</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr>
+                                            <td><?=$user->getNome()?></td>
+                                            <td><?=$user->getEmail()?></td>
+                                            <td><?=$user->getTelefone()?></td>
+                                            <td><?=$data?></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Perfis</label>
+
+                                <?php
+
+                                if(isset($perfis))
+                                    foreach($perfis as $perfil){?>
+                                        <div class="checkbox">
+                                            <label>
+                                                <input name="perfis[]" <?=(isset($hasPerfis[$perfil->getId()]))?'checked':'';?> type="checkbox" value="<?=$perfil->getId();?>">
+                                                <?=$perfil->getNome();?>
+                                            </label>
+                                        </div>
+                                        <?php
+                                    }
+                                ?>
+
+                            </div>
+                        </div>
+                        <div class="widget-footer padding-top-10 padding-bottom-10">
+                            <button type="submit" name="submit" class="btn btn-success" >
+                                <i class="fa fa-save"></i> Salvar
+                            </button>
+                            <button type="reset" name="submit" class="btn btn-info" >
+                                <i class="fa fa-eraser"></i> Limpar
+                            </button>
+                            <a class="btn btn-danger"  href="<?=$return?>">
+                                <i class="fa fa-arrow-circle-o-left"></i> Retornar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </form>
+    </div>
+</div>

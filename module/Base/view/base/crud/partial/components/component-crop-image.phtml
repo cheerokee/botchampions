@@ -1,0 +1,209 @@
+<?php
+$name = $this->element->getName();
+
+?>
+<div ng-app="component<?=$name?>"
+     ng-controller="Component<?=$name?>Controller as component<?=$name?>"
+     class="row">
+    <div class="col-md-12">
+        <div id="content_image_input<?= $name ?>">
+        <?php
+        if($this->element->getValue() == '' || !file_exists('public/img/uploads/' . $this->element->getValue())) {
+            ?>
+                <input class="form-control" type="file" id="image_input<?= $name ?>" accept="image/*"
+                       onchange="cropImage(event)" <?=$this->element->getAttribute('required')?>>
+            <?php
+        }
+        ?>
+        </div>
+        <button type="button" title="Cancelar Recorte de Imagem" ng-show="btndel" class="btn btn-danger btn-del-img pull-right" ng-click="cancelCrop()">
+            <i class="fa fa-close"></i>
+        </button>
+        <div id="image_load<?=$name?>">
+            <?php
+            if($this->element->getValue() != '' && file_exists('public/img/uploads/' . $this->element->getValue())) {
+                ?>
+                <div align="center">
+                    <img style="max-height: 300px" class="img-responsive thumbnail" src="/img/uploads/<?=$this->element->getValue()?>" />
+                </div>
+                <?php
+            }
+            ?>
+        </div>
+        <input type="hidden" id="image<?=$name?>" name="image" value="<?=$this->element->getValue()?>" />
+    </div>
+    <div class="modal fade" id="cropModal<?=$name?>" tabindex="-1" role="dialog" aria-labelledby="cropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Recorte a Imagem</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div id="content-crop-box<?=$name?>" >
+                            <img class="img-responsive" id="output<?=$name?>"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" ng-click="crop()">Recortar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<?php
+$aspectRatio = false;
+if(isset($this->component_params['aspect-ratio']))
+{
+    $aspectRatio = $this->component_params['aspect-ratio'];
+}
+
+?>
+<script>
+    angular.module('component<?=$name?>', [])
+    .controller('Component<?=$name?>Controller', ['$scope','$http','$timeout', function($scope,$http,$timeout) {
+        $scope.btndel = false;
+
+        <?=($this->element->getValue() != '' && file_exists('public/img/uploads/' . $this->element->getValue()))?'$scope.btndel = true;':'';?>
+
+        cropImage = function (event) {
+            $('#cropModal<?=$name?>').modal();
+            $timeout(function () {
+                $scope.loadFile(event);
+            },1000);
+        };
+
+        $scope.loadFile = function(event) {
+
+            var reader = new FileReader();
+            reader.onload = function(){
+                var output = document.getElementById('output<?=$name?>');
+                output.src = reader.result;
+                var $image = $('#output<?=$name?>');
+
+                $image.cropper({
+                    zoomOnWheel:false,
+                    <?=($aspectRatio)?'aspectRatio: '.$aspectRatio.',':'';?>
+                    crop: function(event) {
+                    }
+                });
+                var cropper = $image.data('cropper');
+            };
+
+            reader.readAsDataURL(event.target.files[0]);
+        };
+
+        $scope.cancelCrop = function () {
+            bootbox.confirm({
+                message: "Deseja excluir a imagem?",
+                buttons: {
+                    cancel: {
+                        label: 'Não',
+                        className: 'btn-danger'
+                    },
+                    confirm: {
+                        label: 'Sim',
+                        className: 'btn-success btnConfirm',
+                    }
+                },
+                callback: function (result) {
+                    if(!result){
+                        this.modal('hide');
+                    }else{
+                        $.ajax({
+                            type: "POST",
+                            url: "<?=$this->url('image/defaults',array('controller' => 'image','action' => 'deletar'));?>",
+                            data: {entity:"<?=str_replace("\\","\\\\",$this->entity_name)?>",field:"<?=$name?>",img:$("#image<?=$name?>").val()},
+                            success: function (response) {
+                                if(response.result){
+                                    $.smallBox({
+                                        title: "Sucesso!",
+                                        content: "Imagem deletada com sucesso!",
+                                        color: "#739e73",
+                                        iconSmall: "fa fa-smile-o bounce animated",
+                                        timeout: 4000
+                                    });
+
+                                    $timeout(function () {
+                                        window.location.reload();
+                                    },1000);
+                                }else{
+                                    $("#image_load<?=$name?>").hide();
+                                    $("#content_image_input<?=$name?>").html(`
+                                        <input  class="form-control"
+                                                type="file" id="image_input<?= $name ?>"
+                                                accept="image/*"
+                                                onchange="cropImage(event)" <?=$this->element->getAttribute('required')?>>
+                                    `);
+                                    $scope.btndel = false;
+                                    $.smallBox({
+                                        title : "Erro!",
+                                        content : "Ops, houve algum erro ao apagar a imagem!",
+                                        color : "#C46A69", //"#296191" primary,
+                                        iconSmall : "fa fa-frown-o bounce animated",
+                                        timeout : 4000
+                                    });
+                                }
+                            },
+                            dataType: 'json'
+                        });
+
+
+                    }
+                }
+            });
+        };
+
+        $scope.crop = function () {
+            var output = $("#output<?=$name?>");
+            output.cropper('getCroppedCanvas').toBlob(function (blob) {
+                var formData = new FormData();
+                formData.append('croppedImage', blob);
+                $.ajax('<?=$this->url('image/defaults',array('controller' => 'image','action' => 'recortar'));?>',{
+                    method: "POST",
+                    dataType: 'json',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (o) {
+                        var object = o;
+                        var image = object.image;
+                        var image_name = object.image_name;
+                        $("#image_load<?=$name?>").html(`
+                            <div align="center">
+                                <img style="max-height: 300px" class="img-responsive thumbnail" src="`+image+`"/>
+                            </div>
+                        `);
+                        $("#image<?=$name?>").val(image_name);
+                        $("#image_input<?=$name?>").remove();
+                        $("#cropModal<?=$name?>").modal('hide');
+                        $timeout(function () {
+                            $scope.btndel = true;
+                        },300);
+                    },
+                    error: function () {
+                        $.smallBox({
+                            title : "Erro!",
+                            content : "Ops, houve algum erro: " + response.statusText,
+                            color : "#C46A69", //"#296191" primary,
+                            iconSmall : "fa fa-frown-o bounce animated",
+                            timeout : 4000
+                        });
+                    }
+                },'Json');
+            });
+        };
+
+        $('#cropModal<?=$name?>').on('hide.bs.modal', function(e){
+            if($("#image<?=$name?>").val()=='')
+            {
+                window.location.reload();
+            }
+        });
+    }]);
+</script>

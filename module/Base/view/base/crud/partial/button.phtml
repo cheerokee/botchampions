@@ -1,0 +1,78 @@
+<?php
+$action = $this->action;
+$entity = $this->entity;
+$key = $this->key;
+
+if ($action['where']) {
+    eval("\$where = " . $action['where'] . ";");
+}
+
+$icon = '';
+if ($action['icon']) {
+    $icon = "<i class='$action[icon]'></i>";
+}
+
+$options = array();
+    
+if ($action['query']) {
+    $options['query'] = $action['query'];
+}
+
+if (isset($action['controller']) || $this->rota('controller')) {
+    $url['controller'] = (isset($action['controller'])) ? $action['controller'] : $this->rota('controller');
+}
+
+if (isset($action['action'])) {
+    $url['action'] = $action['action'];
+}
+
+if ($entity->$identifyMethod() != null) {
+    $url['id'] = $entity->$identifyMethod();
+}
+
+
+if($entity instanceof \User\Entity\User &&  $action['rota'] == 'user-conta-edit' && !$entity->getContas()->getValues()){
+    $action['rota'] = 'user-conta/default';
+    $url['controller'] = 'user-conta';
+    $url['action'] = 'new';
+    unset($url['id']);
+}
+
+$rota = (isset($action['rota'])) ? $action['rota'] : $this->rota();
+
+if(isset($action['modal']))
+{
+
+    ?>
+    <button type="button"
+            id="modal-button-<?=$entity->$identifyMethod()?>"
+            title="<?=($action['title'])?$action['title']:''?>"
+            class="btn <?=($action['class'])?$action['class']:"btn-default"?> button_custom"
+            data-toggle="modal" data-target="#<?=$action['modal']?><?=$entity->$identifyMethod()?>">
+        <?=$icon?> <?=$action['label']?>
+    </button>
+    <?php
+
+    $method = 'get'.ucwords($action['modal']);
+    try{
+        //ex. getPayperson deve ser um helper com modal
+        echo $this->$method($entity->$identifyMethod());
+
+    }catch(Exception $e){
+    }
+
+}else if(isset($action['button']) && $action['button'] == true)
+{
+
+
+   
+}else{
+    ?>
+    <a title="<?=($action['title'])?$action['title']:''?>" href="<?=$this->url($rota,$url,$options);?>"	class="btn <?=($action['class'])?$action['class']:"btn-default"?> button_custom">
+        <?=$icon?> <?=$action['label']?>
+    </a>
+    <?php
+}
+?>
+
+

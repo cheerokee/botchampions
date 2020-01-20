@@ -1,0 +1,327 @@
+<?php
+$element = $this->element;
+$element->setAttribute('name',$element->getName());
+//echo '<div class="summernote" id="summernote_'.$formElement->getName().'" ></div>';
+?>
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-icon-change">
+            <tr>
+                <td>Ícone Selecionado:</td>
+                <td class="icon-changed">
+                    <center>
+                        <i id="icon-selected-<?=$element->getName()?>" class="fa <?=($element->getValue() != '')?$element->getValue():'fa-question'?>">
+                        </i>
+                    </center>
+                </td>
+                <td>
+                    <center>
+                        <input type="hidden" name="<?=$element->getName()?>" value="<?=($element->getValue() != '')?$element->getValue():'fa-question'?>">
+                        <button type="button" class="btn btn-primary btn-sm change-icon-btn" data-toggle="modal" data-target="#icon-change-<?=$element->getName()?>">
+                            Escolher o Ícone
+                        </button>
+                    </center>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<?php
+$enabled_icons = array(
+    'pe-7s-album'   => "Album",
+    'pe-7s-arc'   => "Arco e Flecha",
+    'pe-7s-back-2'   => "Voltar",
+    'pe-7s-bandaid'   => "Bandaid",
+    'pe-7s-car'   => "Carro",
+    'pe-7s-diamond'   => "Diamante",
+    'pe-7s-door-lock'   => "Fechadura",
+    'pe-7s-eyedropper'   => "Colírio",
+    'pe-7s-female'   => "Feminino",
+    'pe-7s-gym'   => "Academia",
+    'pe-7s-hammer'   => "Martelo",
+    'pe-7s-headphones'   => "Headphone",
+    'pe-7s-helm'   => "Leme",
+    'pe-7s-hourglass'   => "Ampulheta",
+    'pe-7s-leaf'   => "Folha de Arvore",
+    'pe-7s-magic-wand'   => "Varinha Mágica",
+    'pe-7s-male'   => "Masculino",
+    'pe-7s-map-2'   => "Mapa",
+    'pe-7s-next-2'   => "Próximo",
+    'pe-7s-paint-bucket'   => "Lata de Tinta",
+    'pe-7s-pendrive'   => "Pendrive",
+    'pe-7s-photo'   => "Foto",
+    'pe-7s-piggy'   => "Porco",
+    'pe-7s-plugin'   => "Plugin",
+    'pe-7s-refresh-2'   => "Atualizar",
+    'pe-7s-rocket'   => "Foguete",
+    'pe-7s-settings'   => "Configurações",
+    'pe-7s-shield'   => "Escudo",
+    'pe-7s-smile'   => "Sorriso",
+    'pe-7s-usb'   => "USB",
+    'pe-7s-vector'   => "Vetor",
+    'pe-7s-wine'   => "Vinho",
+    'pe-7s-cloud-upload'   => "Núvem Upload",
+    'pe-7s-cash'   => "Dinheiro",
+    'pe-7s-close'   => "Fechar",
+    'pe-7s-bluetooth'   => "Bluetooth",
+    'pe-7s-cloud-download'   => "Núvem Download",
+    'pe-7s-way'   => "Rota",
+    'pe-7s-close-circle'   => "Fechar",
+    'pe-7s-id'   => "Identidade",
+    'pe-7s-angle-up'   => "Acima",
+    'pe-7s-wristwatch'   => "Relógio de Pulso",
+    'pe-7s-angle-up-circle'   => "Acima",
+    'pe-7s-world'   => "Globo",
+    'pe-7s-angle-right'   => "Direita",
+    'pe-7s-volume'   => "Volume",
+    'pe-7s-angle-right-circle'   => "Direita",
+    'pe-7s-users'   => "Usuários",
+    'pe-7s-angle-left'   => "Esquerda",
+    'pe-7s-user-female'   => "Usuário Feminino",
+    'pe-7s-angle-left-circle'   => "Esquerda",
+    'pe-7s-up-arrow'   => "Cima",
+    'pe-7s-angle-down'   => "Abaixo",
+    'pe-7s-switch'   => "Interruptor",
+    'pe-7s-angle-down-circle'   => "Baixo",
+    'pe-7s-scissors'   => "Tesoura",
+    'pe-7s-wallet'   => "Carteira",
+    'pe-7s-safe'   => "SAlvar",
+    'pe-7s-volume2'   => "Volume",
+    'pe-7s-volume1'   => "Volume",
+    'pe-7s-voicemail'   => "Mensagem de Voz",
+    'pe-7s-video'   => "Vídeo",
+    'pe-7s-user'   => "Usuário",
+    'pe-7s-upload'   => "Upload",
+    'pe-7s-unlock'   => "Destrancar",
+    'pe-7s-umbrella'   => "Guarda-Chuva",
+    'pe-7s-trash'   => "Lixo",
+    'pe-7s-tools'   => "Ferramenta",
+    'pe-7s-timer'   => "Temporizador",
+    'pe-7s-ticket'   => "Etiqueta",
+    'pe-7s-target'   => "Alvo",
+    'pe-7s-sun'   => "Sol",
+    'pe-7s-study'   => "Estudo",
+    'pe-7s-stopwatch'   => "Cronômetro",
+    'pe-7s-star'   => "Estrela",
+    'pe-7s-speaker'   => "Alto Falante",
+    'pe-7s-signal'   => "Sinal",
+    'pe-7s-shuffle'   => "Embaralhar",
+    'pe-7s-shopbag'   => "Sacola",
+    'pe-7s-share'   => "Compartilhar",
+    'pe-7s-server'   => "Server",
+    'pe-7s-search'   => "Procurar",
+    'pe-7s-film'   => "Filme",
+    'pe-7s-science'   => "Ciência",
+    'pe-7s-disk'   => "Disco",
+    'pe-7s-ribbon'   => "Fita",
+    'pe-7s-repeat'   => "Repetir",
+    'pe-7s-refresh'   => "Atualizar",
+    'pe-7s-add-user'   => "Adicionar Usuário",
+    'pe-7s-refresh-cloud'   => "Atualizar",
+    'pe-7s-paperclip'   => "Clipe de Papel",
+    'pe-7s-radio'   => "Rádio",
+    'pe-7s-note2'   => "Anotação",
+    'pe-7s-print'   => "Imprimir",
+    'pe-7s-network'   => "Network",
+    'pe-7s-prev'   => "Anterior",
+    'pe-7s-mute'   => "Mudo",
+    'pe-7s-power'   => "Energia",
+    'pe-7s-medal'   => "Medalha",
+    'pe-7s-portfolio'   => "Portifólio",
+    'pe-7s-like2'   => "Like",
+    'pe-7s-plus'   => "Mais",
+    'pe-7s-left-arrow'   => "Esquerda",
+    'pe-7s-play'   => "Play",
+    'pe-7s-key'   => "Chave",
+    'pe-7s-plane'   => "Avião",
+    'pe-7s-joy'   => "Controle",
+    'pe-7s-photo-gallery'   => "Galeria",
+    'pe-7s-pin'   => "Pin",
+    'pe-7s-phone'   => "Celular",
+    'pe-7s-plug'   => "Plug",
+    'pe-7s-pen'   => "Caneta",
+    'pe-7s-right-arrow'   => "Direita",
+    'pe-7s-paper-plane'   => "Avião de Papel",
+    'pe-7s-delete-user'   => "Deletar Usuário",
+    'pe-7s-paint'   => "Pincel",
+    'pe-7s-bottom-arrow'   => "Abaixo",
+    'pe-7s-notebook'   => "Livro",
+    'pe-7s-note'   => "Anotar",
+    'pe-7s-next'   => "Próximo",
+    'pe-7s-news-paper'   => "Jornal",
+    'pe-7s-musiclist'   => "Lista de Música",
+    'pe-7s-music'   => "Música",
+    'pe-7s-mouse'   => "Mouse",
+    'pe-7s-more'   => "Mais",
+    'pe-7s-moon'   => "Lua",
+    'pe-7s-monitor'   => "Monitor",
+    'pe-7s-micro'   => "Microfone",
+    'pe-7s-menu'   => "Menu",
+    'pe-7s-map'   => "Mapa",
+    'pe-7s-map-marker'   => "Marcador de Mapa",
+    'pe-7s-mail'   => "E-mail",
+    'pe-7s-mail-open'   => "E-mail Aberto",
+    'pe-7s-mail-open-file'   => "Email Aberto",
+    'pe-7s-magnet'   => "Imã",
+    'pe-7s-loop'   => "Loop",
+    'pe-7s-look'   => "Visão / Olho",
+    'pe-7s-lock'   => "Trancado",
+    'pe-7s-lintern'   => "Lanterna",
+    'pe-7s-link'   => "Link",
+    'pe-7s-like'   => "Like",
+    'pe-7s-light'   => "Luz",
+    'pe-7s-less'   => "Menos",
+    'pe-7s-keypad'   => "Teclado",
+    'pe-7s-junk'   => "Lixo",
+    'pe-7s-info'   => "Informação",
+    'pe-7s-home'   => "Casa",
+    'pe-7s-help2'   => "Ajuda",
+    'pe-7s-help1'   => "Ajuda",
+    'pe-7s-graph3'   => "Gráfico",
+    'pe-7s-graph2'   => "Gráfico",
+    'pe-7s-graph1'   => "Gráfico",
+    'pe-7s-graph'   => "Gráfico",
+    'pe-7s-global'   => "Global",
+    'pe-7s-gleam'   => "Brilho",
+    'pe-7s-glasses'   => "Oculos",
+    'pe-7s-gift'   => "Presente",
+    'pe-7s-folder'   => "Pasta",
+    'pe-7s-flag'   => "Bandeira",
+    'pe-7s-filter'   => "Filtro",
+    'pe-7s-file'   => "Arquivo",
+    'pe-7s-expand1'   => "Expandir",
+    'pe-7s-exapnd2'   => "Expandir",
+    'pe-7s-edit'   => "Editar",
+    'pe-7s-drop'   => "Cair",
+    'pe-7s-drawer'   => "Gaveta",
+    'pe-7s-download'   => "Download",
+    'pe-7s-display2'   => "Tela / Display",
+    'pe-7s-display1'   => "Tela / Display",
+    'pe-7s-diskette'   => "Disquete",
+    'pe-7s-date'   => "Data",
+    'pe-7s-cup'   => "Trofél",
+    'pe-7s-culture'   => "Cultura",
+    'pe-7s-crop'   => "Recortar",
+    'pe-7s-credit'   => "Crédito",
+    'pe-7s-copy-file'   => "Copiar Arquivo",
+    'pe-7s-config'   => "Configuração",
+    'pe-7s-compass'   => "Bússola",
+    'pe-7s-comment'   => "Comentário",
+    'pe-7s-coffee'   => "Café",
+    'pe-7s-cloud'   => "Núvem",
+    'pe-7s-clock'   => "Relógio",
+    'pe-7s-check'   => "Check",
+    'pe-7s-chat'   => "Chat / Bate-Papo",
+    'pe-7s-cart'   => "Carrinho de Compra",
+    'pe-7s-camera'   => "Camera",
+    'pe-7s-call'   => "Chamada",
+    'pe-7s-calculator'   => "Calculadora",
+    'pe-7s-browser'   => "Navegador / Browser",
+    'pe-7s-box2'   => "Caixa",
+    'pe-7s-box1'   => "Caixa",
+    'pe-7s-bookmarks'   => "Favoritos",
+    'pe-7s-bicycle'   => "Bicicleta",
+    'pe-7s-bell'   => "Sino",
+    'pe-7s-battery'   => "Bateria",
+    'pe-7s-ball'   => "Bola",
+    'pe-7s-back'   => "Voltar",
+    'pe-7s-attention'   => "Atenção",
+    'pe-7s-anchor'   => "Âncora",
+    'pe-7s-albums'   => "Album",
+    'pe-7s-alarm'   => "Alarme",
+    'pe-7s-airplay'   => "Airplay"
+);
+?>
+<div class="modal fade" id="icon-change-<?=$element->getName()?>" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Escolha um Ícone</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body list-icon-change-content">
+                <?php
+                if(!empty($enabled_icons)){
+                    ?>
+                    <ul class="list-icon-change bs-glyphicons-list">
+                        <?php
+                        foreach($enabled_icons as $class => $enabled_icon)
+                        {
+                            ?>
+                            <li onclick="$('input[name=<?=$element->getName()?>]').val('<?=$class?>');$('#icon-selected-<?=$element->getName()?>').attr('class','fa <?=$class?>');$('#icon-change-<?=$element->getName()?>').modal('hide');">
+                                <i class="fa <?=$class?>" ></i>
+                                <p><?=$enabled_icon?></p>
+                            </li>
+                            <?php
+                        }
+                        ?>
+                    </ul>
+                    <?php
+                }
+                ?>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .change-icon-btn{
+        height: 20px;
+        padding: 1px 5px;
+    }
+
+    .table-icon-change td{
+        padding: 5px !important;
+    }
+
+    .icon-changed{
+        font-size: 15px;
+        background-color: blue;
+    }
+
+    .list-icon-change {
+        margin: 0px;
+        padding: 0px;
+        list-style: none;
+    }
+
+    .list-icon-change li{
+        display: inline-block;
+        text-align: center;
+        width: 90px;
+        height: 90px;
+        border-radius: 5px;
+        border: 1px solid #0c7cd5;
+        position: relative;
+        cursor: pointer;
+        -webkit-transition: width 2s; /* Safari */
+        transition: width 2s;
+    }
+
+    .list-icon-change li:hover{
+        background-color: #0c7cd5;
+    }
+
+    .list-icon-change p{
+        position: absolute;
+        bottom: 0px;
+        margin: 0px;
+        padding: 5px;
+        text-align: center;
+        width: 100%;
+    }
+
+    .list-icon-change li i{
+        font-size: 30px;
+        margin: 15px 0px 0px 0px;
+    }
+
+    .list-icon-change-content{
+        max-height: 300px;
+        overflow-y: auto;
+    }
+</style>

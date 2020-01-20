@@ -1,0 +1,16 @@
+<label>Preço</label>
+<select name="price"
+        ng-change="selectPrice(contract._embedded.ea_price.id)"
+
+        class="form-control"
+        ng-model="contract._embedded.ea_price.id" required>
+    <option value="">Selecione</option>
+    <option ng-repeat="price in prices" ng-value="{{ price.id }}" value="{{ price.id }}">
+        {{ price.title }} - {{ price.price |  currency:'R$ ':2}}
+    </option>
+</select>
+<!--<input type="hidden" ng-if="contract.status != 0 && contract.status" name="price" value="{{ contract._embedded.ea_price.id }}" />-->
+<input type="hidden" name="price" value="{{ contract._embedded.ea_price.id }}" />
+<!--<p ng-if="contract.status != 0 && contract.status">-->
+<!--    {{ contract._embedded.ea_price.title }} - {{ contract._embedded.ea_price.price |  currency:'R$ ':2}}-->
+<!--</p>-->

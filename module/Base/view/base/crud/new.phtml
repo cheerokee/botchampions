@@ -1,0 +1,348 @@
+<div id="ribbon">
+    <span class="ribbon-button-alignment">
+        <span id="refresh" class="btn btn-ribbon" data-action="resetWidgets" data-title="refresh"  rel="tooltip" data-placement="bottom" data-original-title="<i class='text-warning fa fa-warning'></i> Warning! This will reset all your widget settings." data-html="true">
+            <i class="fa fa-refresh"></i>
+        </span>
+    </span>
+    <ol class="breadcrumb">
+        <li>
+            <a href="/admin">
+                <i class="fa fa-dashboard"></i>&nbsp;Dashboard
+            </a>
+        </li>
+        <li>Adicionar Registros</li>
+    </ol>
+</div>
+<div id="content">
+    <div class="row">
+        <?php
+        global $user;
+        $functions = new \Base\Controller\BaseFunctions();
+
+        /** DECLARAÇÕES **/
+        $form = $this->form;
+        $user = $this->userIdentity('Admin');
+        $chave = ($this->controller == 'users')?'user':$this->controller;
+        $em = $this->em;
+
+        $form->setAttribute('action', $this->url($this->route, array(
+            'controller' => $chave,
+            'action' => 'new'
+        )))->prepare();
+
+        $link['return'] = $this->url($this->route, array(
+            'controller' => $chave,
+            'action' => 'index'
+        ));
+
+        /** REDIRECIONAMENTO **/
+        if(!$this->userPermission('modulos',$chave,'new')){
+            header('Location: '.$this->route);
+            exit();
+        }
+
+
+        if($chave == 'comissao'){
+            /**
+             * @var \Admin\Entity\User[] $users
+             */
+            $users = $em->getRepository('Admin\Entity\User')->findBy(array(
+                'active' => 1
+            ));
+
+            if(!empty($users))
+            {
+                foreach($users as $u)
+                {
+                    /**
+                     * @var \Admin\Entity\UserPerfil[] $userperfis
+                     */
+                    $userperfis = $u->getUserPerfis();
+
+                    if(!empty($userperfis)){
+                        foreach ($userperfis as $userperfil){
+                            /**
+                             * @var \Admin\Entity\Perfil $perfil
+                             */
+                            $perfil = $userperfil->getPerfil();
+
+                            if($perfil->getNome() == 'Afiliado'){
+                                if (empty($nomes) || !in_array($u->getNome(), $nomes)) {
+                                    if ($functions->formatarTexto($u->getNome()) != '')
+                                        $nomes[] = array('label' => $functions->formatarTexto($u->getNome()),'value' =>$u->getId());
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            if(!empty($nomes))
+                $nomes = json_encode($nomes);
+            ?>
+            <script>
+                $(document).ready(function(){
+                    <?php
+                    if(isset($nomes) && $nomes != '')
+                    {
+                    ?>
+                    let Json = '<?=$nomes?>';
+                    var users = JSON.parse(Json);
+
+                    $("#inputUserName").autocomplete({
+                        source: users,
+                        open: function (event, ui) {
+                            $('#inputUser').val('');
+                        },
+                        select: function(event, ui) {
+                            $('#inputUserName').val(ui.item.label);
+                            $('#inputUser').val(ui.item.value);
+
+                            return false;
+                        }
+                    }).blur(function(){
+                        if($("#inputUserName").val() == '') {
+                            $("#inputUserName").val('');
+                            $('#inputUser').val('');
+                        }
+                    });
+                    <?php
+                    }
+                    ?>
+                });
+            </script>
+            <?php
+        }
+
+        if($chave == 'ea-contract')
+        {
+            echo $this->partial('partial/customs/ea_contract_user_data.phtml',array(
+                'form' => $this->form,
+                'em' => $em
+            ));
+        }
+
+        ?>
+
+        <div class="col-md-12 flashMessages">
+            <?php
+            $flash = $this->flashMessenger();
+            $types = array(
+                'error'=>'alert-danger',
+                'info'=>'alert-info',
+                'default'=>'alert-warning',
+                'success'=>'alert-success'
+            );
+
+            foreach($types as $k => $type){
+                echo $flash->render($k, array(
+                    'alert',
+                    'alert-dismissible',
+                    $type
+                ));
+            }
+            ?>
+        </div>
+        <br />
+        <article class="col-sm-12">
+            <div class="jarviswidget" id="wid-id-0"
+                 data-widget-togglebutton="false"
+                 data-widget-editbutton="false"
+                 data-widget-fullscreenbutton="false"
+                 data-widget-colorbutton="false"
+                 data-widget-deletebutton="false">
+                <header>
+                <span class="widget-icon">
+                    <i class="fa fa-bar-chart-o txt-color-darken"></i>
+                </span>
+                    <h2><?=$this->title?> <small>- <?=$this->translate("adicionar registro")?></small></h2>
+                </header>
+                <div class="padding-15">
+                    <div class="widget-body padding-top-10">
+                        <?=$this->form()->openTag($form);?>
+                        <div class="box-body">
+                            <div class="row">
+                                <?php
+                                $hidden = array(
+                                    'hidden' => 1,
+                                    'submit' => 1
+                                );
+
+                                $contador = 0;
+                                foreach ($form as $element) {
+                                    $type   = $element->getAttributes()['type'];
+                                    $field  = $element->getName();
+                                    $admin  = ($user->isIsAdmin())?true:false;
+
+                                    ?>
+                                    <div style="<?=($hidden[$type])?'display:none':'display:block';?>" class="col-md-4">
+                                        <div class="form-group">
+                                            <?php
+                                            $entity = $this->entity;
+
+
+                                            if(!$user->isIsAdmin() && ($element->getName() == 'valorInicial' || $element->getName() == 'valorAtual')){
+                                                $element->setAttribute('disabled', 'disabled');
+                                            }
+
+                                            if ($element->getLabel() != null) {
+                                                echo "<label for='Input" . $element->getName() . "'>" . $element->getLabel() . "</label>";
+                                            }
+
+                                            $formElement = $form->get($element->getName());
+                                            if ($type != 'checkbox') {
+                                                $formElement->setAttribute("class", $formElement->getAttribute('class')." form-control ");
+                                            } else {
+                                                $formElement->setAttribute("class", "checkbox");
+                                            }
+
+                                            $formElement->setAttribute("id", "Input" . $element->getName())
+                                                ->setAttribute("type", $type);
+
+                                            //CAMPOS QUE CONTIVEREM AS SEGUINTES CLASSES ASSUMIRAM UMA FORMA CUSTOMIZADA
+                                            $component = $formElement->getAttribute('component');
+                                            $component_params = $formElement->getAttribute('component_params'); //Deve ser um Json
+
+                                            $customs = array(
+                                                'rich-text',
+                                                'icon-change',
+                                                'crop-image',
+                                                'autocomplete',
+                                                'join-select',
+                                                'days-select'
+                                            );
+
+                                            if(!empty($customs) && in_array($component,$customs)){
+                                                try {
+                                                    echo $this->partial('partial/components/component-' . $component, array(
+                                                        'entity_name' => get_class($this->entity),
+                                                        'element' => $formElement,
+                                                        'component_params' => json_decode($component_params,true),
+                                                        'em'    =>  $em,
+                                                        'controller' => $chave
+                                                    ));
+                                                }catch (Exception $e){
+                                                    echo '<p>Componente (component-' . $component . ') não definido!</p>';
+                                                }
+
+                                                echo '</div></div>';
+                                                continue;
+                                            }
+
+                                            if($type == 'date') {
+                                                echo '<div class="input-group input-group-md">';
+                                                echo $this->formelement($formElement);
+                                                echo '<span class="input-group-btn">
+                                                            <button type="button" onclick="setToday(\''.$formElement->getAttribute('id').'\')" class="btn btn-info">Hoje</button>
+                                                          </span>';
+                                                echo '</div>';
+                                            }else if($field == 'user'){
+                                                if($admin) {
+                                                    ?>
+                                                    <input name="user_name" id="inputUserName" class="form-control" value=""
+                                                           required>
+                                                    <input type="hidden" name="user" id="inputUser" value="">
+                                                    <?php
+                                                }else{
+                                                    ?><br/>
+                                                    <p class="text-center"><?=$user->getNome()?></p>
+                                                    <input type="hidden" name="user" id="inputUser" value="<?=$user->getId()?>">
+                                                    <?php
+                                                }
+                                            }else if($chave == 'comissao' && $field == 'user'){
+                                                if($admin) {
+                                                    ?>
+                                                    <input name="user_name" id="inputUserName" class="form-control" value=""
+                                                           required>
+                                                    <input type="hidden" name="user" id="inputUser" value="">
+                                                    <?php
+                                                }else{
+                                                    ?><br/>
+                                                    <p class="text-center"><?=$user->getNome()?></p>
+                                                    <input type="hidden" name="user" id="inputUser" value="<?=$user->getId()?>">
+                                                    <?php
+                                                }
+                                            }else{
+                                                if(!$user->isIsAdmin() && $element->getName() == 'manual_update_valor'){
+                                                    continue;
+                                                }
+
+                                                echo $this->formelement($formElement);
+                                            }
+
+                                            echo $this->formElementErrors($element);
+
+                                            if($type == 'file') {
+
+                                                $file = $this->getFile($chave, $element->getName(), $this->id);
+                                                $tmp = explode('.',$file);
+                                                $tmp = $tmp[count($tmp)-1];
+
+                                                if($file && $file != '/'){
+                                                    $element->setAttribute('value',$file);?>
+                                                    <script>
+                                                        $("input[name=<?=$element->getName()?>]").removeAttr('required');
+                                                    </script>
+                                                <?php
+                                                if($tmp == 'png' || $tmp == 'jpg' || $tmp == 'jpeg'){
+                                                ?>
+                                                    <div class="col-md-12">
+                                                        <center>
+                                                            <a  target="_blank" href="<?= $file ?>">
+                                                                <img style="height: 40px;margin-top: 5px" src="<?=$file?>"/>
+                                                                <p>Maximizar</p>
+                                                            </a>
+                                                        </center>
+                                                    </div>
+                                                    <?php
+                                                }else{
+                                                    ?>
+                                                    <div class="col-md-12">
+                                                        <a  target="_blank" href="<?= $file ?>">Baixar Arquivo</a>
+                                                    </div>
+                                                <?php
+                                                }
+                                                }else{
+                                                ?>
+                                                    <div class="col-md-12">
+                                                        <p class="text-red">Não há comprovante cadastrado</p>
+                                                    </div>
+                                                    <?php
+                                                }
+                                            }
+                                            ?>
+                                        </div>
+                                    </div>
+                                    <?php
+
+                                    $contador++;
+                                }
+                                ?>
+                            </div>
+                        </div>
+                        <div class="box-footer">
+                            <?=$this->formelement($form->get('id'))?>
+                            <button type="submit" name="submit" class="btn btn-success">
+                                <i class="fa fa-save"></i> Salvar
+                            </button>
+                            <?php
+                            if($user->isIsAdmin()) {
+                                ?>
+                                <button type="reset" class="btn btn-info">
+                                    <i class="fa fa-eraser"></i> Limpar
+                                </button>
+                                <?php
+                            }
+                            ?>
+                            <a class="btn btn-danger" href="<?=$link['return']?>"> <i class="fa fa-arrow-circle-o-left"></i>
+                                Retornar
+                            </a>
+                        </div>
+                        <?=$this->form()->closeTag();?>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</div>

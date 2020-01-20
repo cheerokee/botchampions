@@ -1,0 +1,106 @@
+<?php
+/**
+ * @var DoctrineModule\Form\Element\ObjectSelect $element
+ * @var \Base\Controller\BaseFunctions $functions
+ */
+$element = $this->element;
+$element->setAttribute('name',$element->getName());
+$functions = new \Base\Controller\BaseFunctions();
+
+if($element instanceof \DoctrineModule\Form\Element\ObjectSelect){
+    $target_class   = $element->getOption('target_class');
+    $find_method    = $element->getOption('find_method');
+    $property       = $element->getOption('property');
+    $db_entities    = array();
+    $getMethod = 'get'.$functions->toCamelCase($property,true);
+
+    if(isset($find_method['name'])){
+
+        if(!empty($find_method['params'])){
+            $find_method['name'] = 'findAll';
+            $findName = $find_method['name'];
+            $db_entities = $this->em->getRepository($target_class)->$find_method['name']($find_method['params']);
+        }else{
+            $find_method['name'] = 'findAll';
+            $findName = $find_method['name'];
+            $db_entities = $this->em->getRepository($target_class)->$findName();
+        }
+
+    }else{
+        $db_entities = $this->em->getRepository($target_class)->findAll();
+    }
+
+    $values = array();
+
+    $count = 1;
+    $limit = -1;
+    if(!empty($db_entities))
+    {
+        foreach($db_entities as $db_entity)
+        {
+            $values[] = array(
+                'label'     =>  $functions->formatarTexto($db_entity->$getMethod()),
+                'value'     =>  $db_entity->getId()
+            );
+
+            if($limit != -1 && $count == $limit){
+                break;
+            }
+
+            $count++;
+        }
+    }
+
+    $values = json_encode($values);
+
+    ?>
+    <script>
+        $(document).ready(function(){
+            <?php
+            if(isset($values) && $values != '')
+            {
+            ?>
+            let Json = '<?=$values?>';
+            var values = JSON.parse(Json);
+
+            $("#input<?=$element->getName()?>Label").autocomplete({
+                source: values,
+                open: function (event, ui) {
+                    $('#input<?=$element->getName()?>').val('');
+                },
+                select: function(event, ui) {
+                    $('#input<?=$element->getName()?>Label').val(ui.item.label);
+                    $('#input<?=$element->getName()?>').val(ui.item.value).trigger('input');
+
+                    return false;
+                }
+            }).blur(function(){
+                if($("#input<?=$element->getName()?>Label").val() == '') {
+                    $("#input<?=$element->getName()?>Label").val('');
+                    $('#input<?=$element->getName()?>').val('');
+                }
+            });
+            <?php
+            }
+            ?>
+        });
+    </script>
+    <?php
+    $db_entity = null;
+    if($element->getValue()){
+        $db_entity = $this->em->getRepository($target_class)->findOneById($element->getValue());
+    }
+
+    ?>
+    <input id="input<?=$element->getName()?>Label" class="form-control" value="<?=($db_entity)?$db_entity->$getMethod():'';?>" required>
+    <input type="hidden" name="<?=$element->getName()?>" id="input<?=$element->getName()?>" value="<?=$element->getValue()?>">
+    <?php
+}else{
+    ?>
+    <p class="text-center">
+        Campo auto complete com erro
+    </p>
+    <?php
+}
+
+?>

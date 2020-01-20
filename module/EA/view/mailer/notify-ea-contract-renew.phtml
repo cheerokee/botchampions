@@ -1,0 +1,58 @@
+<html>
+<head>
+</head>
+<body >
+<div style="width:100%;background-color: #444;" align="center">
+    <p>&nbsp;</p>
+    <table   style="background-color: #fff" width="600">
+        <thead>
+        <tr>
+            <th>
+                <div style="width: 94%; padding: 3%; background-color:#132f3b;border-bottom: 3px solid #f87902;">
+                    <?=$this->getConfiguracao('LOGO')?>
+                </div>
+            </th>
+        </tr>
+        </thead>
+        <tbody >
+        <tr >
+            <td>
+                <div style="padding: 5px">
+                    <h1>
+                        <strong>Solicitação de renovação do <?=$this->type_service?></strong>
+                    </h1>
+                    <h4>
+                        <strong>Envio de Comprovante</strong>
+                    </h4>
+                    <p>
+                        O cliente <?=$this->nome?> enviou o comprovante de depósito, faça a verificação
+                        necessária.<br />
+                        Nº da conta do usuário na Activtrades <?=$this->account_xm?><br />
+                        Faça a renovação se tudo estiver correto.
+                    </p>
+                    <p>
+                        Acesse o contrato para análise clicando <a href="<?=$this->rota?>">aqui</a>
+                    </p>
+                    <br/>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td>
+                <div style="width: 94%; padding: 3%; background-color:#132f3b;border-top: 3px solid #f87902;color: #fff">
+                    <h4>
+                        Informa&ccedil;&otilde;es para contato
+                    </h4>
+                    <strong>Tel: </strong> <?=$this->getConfiguracao('TELEFONEEMPRESA')?>
+                    <strong>Email: </strong> <?=$this->getConfiguracao('EMAILEMPRESA')?>
+                </div>
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+    <p>&nbsp;</p>
+</div>
+</body>
+</html>

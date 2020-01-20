@@ -1,0 +1,53 @@
+<html>
+<head>
+</head>
+<body >
+<div style="width:100%;background-color: #444;" align="center">
+    <p>&nbsp;</p>
+    <table   style="background-color: #fff" width="600">
+        <thead>
+        <tr>
+            <th>
+                <div style="width: 94%; padding: 3%; background-color:#132f3b;border-bottom: 3px solid #f87902;">
+                    <?=$this->getConfiguracao('LOGO')?>
+                </div>
+            </th>
+        </tr>
+        </thead>
+        <tbody >
+        <tr >
+            <td>
+                <div style="padding: 5px">
+                    <h1>
+                        <strong><?=$this->operacao?> do <?=$this->service_type?> feito com sucesso!</strong>
+                    </h1>
+                    <p>
+                        Parabéns <?=$this->nome?>, a <?=$this->operacao?> foi feito na sua conta Activtrades de nº <strong><?=$this->conta?></strong>.
+                    </p>
+                    <p>
+                        Acesse o painel para conferir o serviço clicando
+                        <a style="text-decoration: underline" href="<?=$this->rota?>">aqui</a>
+                    </p>
+                    <br/>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td>
+                <div style="width: 94%; padding: 3%; background-color:#132f3b;border-top: 3px solid #f87902;color: #fff">
+                    <h4>
+                        Informa&ccedil;&otilde;es para contato
+                    </h4>
+                    <strong>Tel: </strong> <?=$this->getConfiguracao('TELEFONEEMPRESA')?> ou <?=$this->getConfiguracao('CELULAREMPRESA')?>&nbsp;&nbsp;&nbsp;
+                    <strong>Email: </strong> <?=$this->getConfiguracao('EMAILEMPRESA')?>
+                </div>
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+    <p>&nbsp;</p>
+</div>
+</body>
+</html>

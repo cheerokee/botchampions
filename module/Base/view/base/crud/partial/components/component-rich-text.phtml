@@ -1,0 +1,8 @@
+<?php
+$element = $this->element;
+$element->setAttribute('name',$element->getName());
+?>
+<textarea class="form-control rich-text" name="<?=$element->getName()?>" >
+    <?=$element->getValue()?>
+</textarea>
+<div class="summernote" id="summernote_<?=$element->getName()?>" ></div>

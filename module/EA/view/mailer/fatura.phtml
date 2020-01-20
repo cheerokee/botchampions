@@ -1,0 +1,57 @@
+<html>
+<head>
+</head>
+<body >
+<div style="width:100%;background-color: #444;" align="center">
+    <p>&nbsp;</p>
+    <table   style="background-color: #fff" width="600">
+        <thead>
+        <tr>
+            <th>
+                <div style="width: 94%; padding: 3%; background-color:#132f3b;border-bottom: 3px solid #f87902;">
+                    <?=$this->getConfiguracao('LOGO')?>
+                </div>
+            </th>
+        </tr>
+        </thead>
+        <tbody >
+        <tr >
+            <td>
+                <div style="padding: 5px">
+                    <h1>
+                        <strong>Fatura Disponivel para pagamento</strong>
+                    </h1>
+                    <p>
+                        Informamos que há uma fatura em aberto para a conta <?=$this->conta?><br />
+                        Analise a fatura e faça o upload do comprovante de pagamento acessando CopyTrader > Painel de Serviço
+                        e escolha o serviço contratado clicando no botão "Renovar Serviço".<br />
+                        O valor da fatura é de <strong>R$ <?=$this->value;?></strong> com vencimento até
+                        <strong><?=$this->vencimento?></strong>
+                    </p>
+                    <p>
+                        Acesse o contrato para análise clicando <a href="<?=$this->rota?>">aqui</a><br />
+                        Qualquer dúvida entre em contato com o administrador.
+                    </p>
+                    <br/>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td>
+                <div style="width: 94%; padding: 3%; background-color:#132f3b;border-top: 3px solid #f87902;color: #fff">
+                    <h4>
+                        Informa&ccedil;&otilde;es para contato
+                    </h4>
+                    <strong>Tel: </strong> <?=$this->getConfiguracao('TELEFONEEMPRESA')?>
+                    <strong>Email: </strong> <?=$this->getConfiguracao('EMAILEMPRESA')?>
+                </div>
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+    <p>&nbsp;</p>
+</div>
+</body>
+</html>

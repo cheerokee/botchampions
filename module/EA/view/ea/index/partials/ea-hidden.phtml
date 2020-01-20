@@ -1,0 +1,7 @@
+<input type="hidden" name="ea_contract_user"    value="{{ userId }}" />
+<input type="hidden" name="ea_id"               value="{{ ea.id }}" />
+<input type="hidden" name="renew"               value="{{ renew }}"         ng-if="renew"   />
+<input type="hidden" name="id"                  value="{{ contract.id }}"   ng-if="contract.id" />
+<input type="hidden" name="step"                value="{{ step }}" />
+<input type="hidden" name="account"    value="{{ contract._embedded.ea_xm_account.id }}" />
+<input type="hidden" name="payment_method" ng-model="payment_form" value="{{ contract.payment_method }}" />

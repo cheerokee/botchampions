@@ -1,0 +1,52 @@
+<?php
+
+return array(
+    'modules' => array(
+        'Zend\Db',
+        'Zend\Filter',
+        'Zend\InputFilter',
+        'Zend\Paginator',
+        'Zend\Validator',
+        'ZF\Apigility',
+        'ZF\Apigility\Provider',
+        'AssetManager',
+        'ZF\Apigility\Documentation',
+        'ZF\ApiProblem',
+        'ZF\Configuration',
+        'ZF\MvcAuth',
+        'ZF\OAuth2',
+        'ZF\Hal',
+        'ZF\ContentNegotiation',
+        'ZF\ContentValidation',
+        'ZF\Rest',
+        'ZF\Rpc',
+        'ZF\Versioning',
+        'ZF\DevelopmentMode',
+        'DoctrineModule',
+        'DoctrineORMModule',
+        'Phpro\DoctrineHydrationModule',
+        'ZF\Apigility\Doctrine\Server',
+        'ZF\Doctrine\QueryBuilder',
+        'Application',
+        'Base',
+        'Configuration',
+        'EA',
+        'Myfx',
+        'api',
+        'Admin'
+    ),
+    'module_listener_options' => array(
+        'module_paths' => array(
+            './module',
+            './vendor',
+        ),
+        'config_glob_paths' => array(
+            'config/autoload/{{,*.}global,{,*.}local}.php',
+        ),
+        'config_cache_key' => 'application.config.cache',
+        'config_cache_enabled' => true,
+        'module_map_cache_key' => 'application.module.cache',
+        'module_map_cache_enabled' => true,
+        'cache_dir' => 'data/cache/',
+    ),
+);

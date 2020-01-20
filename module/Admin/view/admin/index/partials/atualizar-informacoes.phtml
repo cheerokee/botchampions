@@ -1,0 +1,118 @@
+<?php
+if($this->user->getIsAdmin()) {
+?>
+<article class="col-sm-12">
+    <div class="jarviswidget" id="wid-id-<?=$this->widgetid?>"
+         data-widget-togglebutton="true"
+         data-widget-editbutton="false"
+         data-widget-fullscreenbutton="false"
+         data-widget-colorbutton="false"
+         data-widget-deletebutton="true">
+        <header>
+            <span class="widget-icon">
+                <i class="fa fa-gears txt-color-darken"></i>
+            </span>
+            <h2>Atualize Informações Rapidamente</h2>
+            <ul class="nav nav-tabs pull-right in">
+                <li class="active">
+                    <a data-toggle="tab" href="#hb1">
+                        <i class="fa fa-lg fa-gear"></i>
+                        <span class="hidden-mobile hidden-tablet">Atualize Configurações</span>
+                    </a>
+                </li>
+            </ul>
+        </header>
+        <div class="padding-15">
+            <div class="widget-body padding-top-10">
+                <div class="tab-content">
+                    <div class="tab-pane active" id="hb1">
+                        <div class="box-body">
+                            <?php
+                            $action = $this->url('configuration/defaults',array(
+                                'controller' => 'Configuration',
+                                'action' => 'dash-update'
+                            ));
+                            ?>
+                            <form method="post" id="update-confs" name="update-confs" action="<?=$action?>">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>Configuração</label>
+                                            <select id="inputChave" class="form-control" name="chave" required>
+                                                <option value="">Selecione...</option>
+                                                <option value="DOLLAR">Cotação Dólar (Valor Equivalente a 1 Dólar)</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Valor</label>
+                                            <textarea id="inputValue" name="value" class="form-control" required></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <button type="reset" form="update-confs" class="btn btn-danger">Cancelar</button>
+                        <button onclick="updateConfs()" type="button" form="update-confs" class="btn btn-success">Atualizar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</article>
+    <script>
+        $(document).ready(function(){
+            $("#inputChave").change(function(){
+                var chave = this.value;
+                if(chave == 'DOLAR_DISPONIVEL' || chave == 'COTACAO_ATUAL'){
+                    $("#inputValue").attr('class','form-control moeda');
+                    $("#inputValue").attr('onkeypress','mascara(this,moeda)');
+                }else if(chave == 'TAXA_FIXA' || chave == 'COMISSAO_FIXA'){
+                    $("#inputValue").attr('class','form-control moeda');
+                    $("#inputValue").attr('onkeypress','mascara(this,moeda)');
+                }else{
+                    $("#inputValue").removeAttr('onkeypress');
+                    $("#inputValue").attr('class','form-control');
+                }
+
+                if(chave != '') {
+                    $.ajax({
+                        url: "/api/configuration/"+chave,
+                        context: document.body
+                    }).done(function (data) {
+                        if(chave == 'DOLAR_DISPONIVEL' || chave == 'COTACAO_ATUAL'){
+                            $("#inputValue").val(floatToMoeda(data.value));
+                        }else{
+                            $("#inputValue").val(data.value);
+                        }
+                    });
+                }
+            });
+        });
+        function updateConfs()
+        {
+            bootbox.confirm({
+                message: "Você deseja realmente atualizar essa configuração?",
+                buttons: {
+                    cancel: {
+                        label: 'Não',
+                        className: 'btn-danger'
+                    },
+                    confirm: {
+                        label: 'Sim',
+                        className: 'btn-success btnConfirm',
+                    }
+                },
+                callback: function (result) {
+                    if(!result){
+                        this.modal('hide');
+                    }else{
+                        $("#update-confs").submit();
+                    }
+                }
+            });
+            return false;
+        }
+    </script>
+<?php
+}
+?>

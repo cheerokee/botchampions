@@ -1,0 +1,31 @@
+<div >
+	<div class="bg-button-admin" align="center">
+    	<a class="btn btn-primary" href="/admin">
+    		<i class="fa fa-user"></i>
+    		&nbsp;Área Restrita
+    	</a>
+	</div>
+</div>
+<iframe id="frame" style="width:100%;"src="http://www.merecomais.com/untitled" ></iframe>
+<script >
+var alturaTela = $(window).height();
+$("#frame").height(alturaTela);
+
+$('#frame').contents().find('#ienatl3vimgimage').hide();
+
+</script>
+<style>
+.bg-button-admin{
+	width: auto;
+	height: auto;
+	position: absolute;
+	right: 20px;
+	background-color: #FFF;
+	padding: 3px;
+	border-bottom-left-radius: 5px;
+	border-bottom-right-radius: 5px;
+    -webkit-box-shadow: 0px 6px 19px -8px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 6px 19px -8px rgba(0,0,0,0.75);
+    box-shadow: 0px 6px 19px -8px rgba(0,0,0,0.75);
+}
+</style>

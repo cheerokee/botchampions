@@ -1,0 +1,377 @@
+<div id="ribbon">
+    <span class="ribbon-button-alignment">
+        <span id="refresh" class="btn btn-ribbon" data-action="resetWidgets" data-title="refresh"  rel="tooltip" data-placement="bottom" data-original-title="<i class='text-warning fa fa-warning'></i> Warning! This will reset all your widget settings." data-html="true">
+            <i class="fa fa-refresh"></i>
+        </span>
+    </span>
+    <ol class="breadcrumb">
+        <li>
+            <a href="/admin">
+                <i class="fa fa-dashboard"></i>&nbsp;Dashboard
+            </a>
+        </li>
+        <li>Usuários</li>
+    </ol>
+</div>
+
+<?php
+use Admin\Entity\User;
+
+/**
+ * @var User $entity
+ */
+$links['new'] = $this->url('admin/defaults',array('controller'=>'users','action'=>'new'));
+$links['exportXls'] = $this->url('admin/defaults',array('controller'=>'users','action'=>'exportXls'));
+if(isset($this->users)){
+
+    foreach ($this->users as $entity){
+
+        if(empty($nomes) || !in_array($entity->getNome(), $nomes)){
+            if(formatarTexto($entity->getNome())!='')
+                $nomes[]  = formatarTexto($entity->getNome());
+        }
+
+        if(empty($indicados) || !in_array($entity->getIndicadoPor(), $indicados)){
+            if(formatarTexto($entity->getIndicadoPor())!='')
+                $indicados[] =  formatarTexto($entity->getIndicadoPor());
+        }
+
+        if(empty($cidades) || !in_array(utf8_encode($entity->getCity()), $cidades)){
+            if(formatarTexto($entity->getCity())!='')
+                $cidades[]   =  formatarTexto($entity->getCity());
+        }
+
+        if(empty($estados) || $entity->getState()!= null && !in_array(utf8_encode($entity->getState()), $estados)){
+            if(formatarTexto($entity->getState())!='')
+                $estados[] =  formatarTexto($entity->getState());
+        }
+
+    }
+
+    if(isset($nomes))
+        $nomes = json_encode($nomes);
+    if(isset($indicados))
+        $indicados = json_encode($indicados);
+    if(isset($cidades))
+        $cidades = json_encode($cidades);
+    if(isset($estados))
+        $estados = json_encode($estados);
+
+}
+
+function formatarTexto($string,$tirarAcento = 0){
+
+    $string = (trim($string));
+
+    if($tirarAcento){
+        $string = preg_replace(array("/(á|à|ã|â|ä)/","/(Á|À|Ã|Â|Ä)/","/(é|è|ê|ë)/","/(É|È|Ê|Ë)/","/(í|ì|î|ï)/","/(Í|Ì|Î|Ï)/","/(ó|ò|õ|ô|ö)/","/(Ó|Ò|Õ|Ô|Ö)/","/(ú|ù|û|ü)/","/(Ú|Ù|Û|Ü)/","/(ñ)/","/(Ñ)/","/(ç)/","/(Ç)/"),explode(" ","a A e E i I o O u U n N c C"),$string);
+    }
+
+    return $string;
+}
+
+$login = $this->login;
+$perfis = $this->perfis;
+#dados para permissoes
+$recurso = 'modulos';
+$item = 'user';
+
+?>
+<br />
+<?php
+$acao = 'listAll';
+$hasPermission = $login->hasPermission($recurso,$item,$acao,$perfis);
+if($hasPermission){
+    ?>
+    <div class="row">
+    <article class="col-sm-6 pull-right">
+
+            <div class="jarviswidget" id="wid-id-0"
+                 data-widget-togglebutton="false"
+                 data-widget-editbutton="false"
+                 data-widget-fullscreenbutton="false"
+                 data-widget-colorbutton="false"
+                 data-widget-deletebutton="false">
+                <header>
+                        <span class="widget-icon">
+                            <i class="fa fa-filter txt-color-darken"></i>
+                        </span>
+                    <h2>Filtro</h2>
+                </header>
+                <div class="padding-15">
+                    <form id="filter_form" method="POST" action="" role="form">
+                    <div class="widget-body padding-top-10">
+                        <div class="form-group">
+                            <label for="filterNome">Nome</label>
+                            <input type="text" name="nome" id="filterNome" class="form-control" value="<?=(isset($_POST['nome']))?$_POST['nome']:'';?>">
+                        </div>
+                        <div class="form-group">
+                            <label for="filterNome">Telefone</label>
+                            <input type="text" name="telefone" id="filterTelefone" class="form-control" value="<?=(isset($_POST['telefone']))?$_POST['telefone']:'';?>">
+                        </div>
+                        <div class="form-group">
+                            <label for="filterNome">Whatsapp</label>
+                            <input type="text" name="whatsapp" id="filterWhatsapp" class="form-control" value="<?=(isset($_POST['whatsapp']))?$_POST['whatsapp']:'';?>">
+                        </div>
+                        <div class="form-group">
+                            <label for="indicadoPor">Indicado</label>
+                            <input type="text" name="indicadoPor" id="filterIndicadoPor" class="form-control" value="<?=(isset($_POST['indicadoPor']))?$_POST['indicadoPor']:'';?>">
+                        </div>
+                        <div class="form-group">
+                            <label for="filterCidade">Cidade</label>
+                            <input type="text" name="city" id="filterCidade" class="form-control" value="<?=(isset($_POST['city']))?$_POST['city']:'';?>">
+                        </div>
+                        <div class="form-group">
+                            <label for="filterState">Estado</label>
+                            <input type="text" name="state" id="filterEstado" class="form-control" value="<?=(isset($_POST['state']))?$_POST['state']:'';?>">
+                        </div>
+                    </div>
+                    <div class="widget-footer padding-top-10 padding-bottom-10">
+                        <button name="filter" type="submit" class="btn btn-primary">Filtrar</button>
+                    </div>
+                    </form>
+                </div>
+            </div>
+    </article>
+    </div>
+    <?php
+}
+?>
+<div class="col-md-12 flashMessages">
+    <?php
+    $flash  =  $this->flashMessenger ();
+    echo  $flash -> render ( 'error' ,    array ( 'alert' ,  'alert-dismissible' ,  'alert-danger' ));
+    echo  $flash -> render ( 'info' ,     array ( 'alert' ,  'alert-dismissible' ,  'alert-info' ));
+    echo  $flash -> render ( 'default' ,  array ( 'alert' ,  'alert-dismissible' ,  'alert-warning' ));
+    echo  $flash -> render ( 'success' ,  array ( 'alert' ,  'alert-dismissible' ,  'alert-success' ));
+
+    ?>
+</div>
+<div id="content">
+    <div class="row">
+        <article class="col-sm-12">
+            <div class="jarviswidget" id="wid-id-1"
+                 data-widget-togglebutton="false"
+                 data-widget-editbutton="false"
+                 data-widget-fullscreenbutton="false"
+                 data-widget-colorbutton="false"
+                 data-widget-deletebutton="false">
+                <header>
+                    <span class="widget-icon">
+                        <i class="fa fa-users txt-color-darken"></i>
+                    </span>
+                    <h2>Usuários</h2>
+                </header>
+                <div class="padding-15">
+                    <div class="widget-header padding-top-10 padding-bottom-10">
+                        <?php
+                        $acao = 'new';
+                        $hasPermission = $login->hasPermission($recurso,$item,$acao,$perfis);
+                        if($hasPermission){
+                            ?>
+                            <a href="<?=$links['exportXls']?>">
+                                <button type="button" class="btn btn-primary"><i class="fa fa-file-excel-o"></i> Exportar E-mails</button>
+                            </a>
+                            <a href="<?=$links['new']?>">
+                                <button type="button" class="btn btn-success"><i class="fa fa-user-plus"></i> Novo</button>
+                            </a>
+                            <?php
+                        }
+                        ?>
+                    </div>
+                    <div class="widget-body padding-top-10 padding-bottom-10">
+                        <table id="tableUser" class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        ID
+                                        <a href="?field=id&<?=((isset($_GET['field']) && $_GET['field']=='id') && $_GET['orderby'] == 'desc')?'orderby=asc':'orderby=desc';?>">
+                                            <i class="pull-right fa fa-arrows-v"></i>
+                                        </a>
+                                    </th>
+                                    <th>
+                                        Nome
+                                        <a href="?field=nome&<?=((isset($_GET['field']) && $_GET['field']=='nome') && $_GET['orderby'] == 'desc')?'orderby=asc':'orderby=desc';?>">
+                                            <i class="pull-right fa fa-arrows-v"></i>
+                                        </a>
+                                    </th>
+                                    <th>
+                                        Email
+                                        <a href="?field=email&<?=((isset($_GET['field']) && $_GET['field']=='email') && $_GET['orderby'] == 'desc')?'orderby=asc':'orderby=desc';?>">
+                                            <i class="pull-right fa fa-arrows-v"></i>
+                                        </a>
+                                    </th>
+                                    <th>
+                                        Membro Desde
+                                        <a href="?field=createdAt&<?=((isset($_GET['field']) && $_GET['field']=='createdAt') && $_GET['orderby'] == 'desc')?'orderby=asc':'orderby=desc';?>">
+                                            <i class="pull-right fa fa-arrows-v"></i>
+                                        </a>
+                                    </th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <?php
+                            //Outro pulo do gato
+                            if(isset($this->data))
+                                foreach ($this->paginator as $entity){
+                                    $links['edit']     =   $this->url('admin/defaults',array('controller'=>'users','action'=>'edit','id'=>$entity->getId()));
+                                    $links['delete']   =   $this->url('admin/defaults',array('controller'=>'users','action'=>'delete','id'=>$entity->getId()));
+                                    $links['active']   =   $this->url('admin/defaults',array('controller'=>'users','action'=>'active','id'=>$entity->getId()));
+                                    $links['deactive'] =   $this->url('admin/defaults',array('controller'=>'users','action'=>'deactive','id'=>$entity->getId()));
+                                    $links['perfil']   =   $this->url('admin/defaults',array('controller'=>'users','action'=>'perfil','id'=>$entity->getId()));
+                                    $links['view']     =   $this->url('admin/defaults',array('controller'=>'users','action'=>'view','id'=>$entity->getId()));
+
+                                    ?>
+                                    <tr>
+                                        <td >
+                                            <?php echo $entity->getId(); ?>
+
+                                        </td>
+                                        <td><?php echo ($entity->getNome()); ?></td>
+                                        <td><?php echo $entity->getEmail(); ?></td>
+                                        <?php
+
+                                        $dataIni = $entity->getCreatedAt()->format('d/m/Y');
+                                        if($entity->getActive()){
+                                            $ativo = "Sim";
+                                        }else{
+                                            $ativo = "Não";
+                                        }
+                                        ?>
+                                        <td><?php echo $dataIni; ?></td>
+                                        <td>
+                                            <?php
+                                            $acao = 'edit';
+                                            $hasPermission = $login->hasPermission($recurso,$item,$acao,$perfis);
+                                            if($hasPermission){?>
+                                                <a href="<?=$links['edit']?>">
+                                                    <button type="button" class="btn btn-info"><i class="fa fa-edit"></i> Editar</button>
+                                                </a>
+                                                <?php
+                                            }
+
+                                            ?>
+
+                                            <?php
+
+                                            if($login->getIsAdmin()){?>
+                                                <a href="<?=$links['perfil']?>">
+                                                    <button type="button" class="btn btn-primary"><i class="fa fa-list"></i> Perfil</button>
+                                                </a>
+                                                <?php
+                                            }
+
+                                            $acao = 'delete';
+                                            $hasPermission = $login->hasPermission($recurso,$item,$acao,$perfis);
+                                            if($hasPermission){?>
+                                                <a class="deleteBT" href="<?=$links['delete']?>">
+                                                    <button type="button" class="btn btn-danger"><i class="fa fa-user-times"></i> Deletar</button>
+                                                </a>
+                                                <?php
+                                            }
+
+                                            if($login->getIsAdmin()){?>
+
+                                                <?php
+                                                if(!$entity->getActive()){?>
+                                                    <a href="<?=$links['active']?>">
+                                                        <button type="button" class="btn btn-warning"><i class="fa fa-check-circle"></i> Ativar</button>
+                                                    </a>
+                                                <?php }else{?>
+                                                    <a href="<?=$links['deactive']?>">
+                                                        <button type="button" class="btn btn-danger"><i class="fa fa-times-circle"></i> Desativar</button>
+                                                    </a>
+                                                <?php }?>
+
+                                                <?php
+                                            }
+
+
+                                            ?>
+                                        </td>
+                                    </tr>
+                                    <?php
+                                }?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="widget-footer padding-top-10 padding-bottom-10">
+                        <?=$this->paginationControl($this->paginator,'Sliding','partials/paginator'); ?>
+                        <br/><br/>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+        <?php
+
+        if(isset($nomes)){
+        ?>
+        $("input[name=nome]").autocomplete({
+            source: <?=$nomes?>
+        });
+        <?php
+        }
+
+        if(isset($indicados)){
+        ?>
+        $("#filterIndicadoPor").autocomplete({
+            source: <?=$indicados?>
+        });
+        <?php
+        }
+
+        if(isset($cidades)){
+        ?>
+        $("#filterCidade").autocomplete({
+            source: <?=$cidades?>
+        });
+        <?php
+        }
+
+        if(isset($estados)){
+        ?>
+        $("#filterEstado").autocomplete({
+            source: <?=$estados?>
+        });
+        <?php
+        }
+
+        ?>
+
+        $(".deleteBT").click(function(){
+            var url = $(this).attr('href');
+
+            result = bootbox.dialog({
+                message: "Deseja mesmo excluir esse registro?",
+                title: "Atenção!",
+                buttons: {
+                    danger: {
+                        label: "Não",
+                        className: "btn-danger",
+                        callback: function() {
+                        }
+                    },
+                    success: {
+                        label: "Sim",
+                        className: "btn-success",
+                        callback: function() {
+                            window.location.href = url;
+                            return false
+                        }
+                    },
+                }
+            });
+            return false;
+        });
+
+    });
+
+
+
+
+</script>

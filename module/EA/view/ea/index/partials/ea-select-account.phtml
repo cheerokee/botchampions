@@ -1,0 +1,12 @@
+<label>Conta na Activtrades</label>
+<select name="account"
+        class="form-control"
+        ng-if="contract.status == 0 || !contract.status"
+        ng-model="contract._embedded.ea_xm_account.id" required>
+    <option value="">Selecione</option>
+    <option ng-repeat="account in accounts" ng-value="{{ account.id }}" value="{{ account.id }}">
+        {{ account.number }}
+    </option>
+</select>
+<input type="hidden" ng-if="contract.status != 0 && contract.status" name="account" value="{{ contract._embedded.ea_xm_account.id }}" />
+<p ng-if="contract.status != 0 && contract.status">{{ contract._embedded.ea_xm_account.number }}</p>

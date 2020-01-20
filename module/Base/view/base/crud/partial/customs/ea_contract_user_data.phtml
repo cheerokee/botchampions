@@ -1,0 +1,176 @@
+<?php
+
+use EA\Entity\EARequestPayment;
+use EA\Entity\EAXMAccount;
+
+$form = $this->form;
+
+/**
+ * @var EARequestPayment[] $faturas
+ */
+$faturas = [];
+$valor_a_receber = 0;
+if(!empty($form)){
+    foreach ($form as $item) {
+        if($item->getName() == 'user'){
+            ?>
+            <input type="hidden" id="inputuser" value="<?=$item->getValue()?>">
+            <?php
+        }
+
+        if($item->getName() == 'ea_xm_account'){
+            /**
+             * @var EAXMAccount $db_ea_xm_account
+             */
+            $db_ea_xm_account = $this->em->getRepository('EA\Entity\EAXMAccount')->findOneById($item->getValue());
+
+            if($db_ea_xm_account){
+                $conta = $db_ea_xm_account->getNumber();
+                $password = $db_ea_xm_account->getPassword();
+                $server = $db_ea_xm_account->getServer();
+            }
+        }
+
+        if($item->getName() == 'id') {
+            $faturas = $this->em->getRepository('EA\Entity\EARequestPayment')->findBy(array(
+                'ea_contract' => $item->getValue()
+            ),array(
+                'due_date' => 'DESC'
+            ));
+
+        }
+    }
+}
+
+?>
+<article class="col-sm-12">
+    <div class="jarviswidget" id="wid-id-0"
+         data-widget-togglebutton="false"
+         data-widget-editbutton="false"
+         data-widget-fullscreenbutton="false"
+         data-widget-colorbutton="false"
+         data-widget-deletebutton="false">
+        <header>
+                <span class="widget-icon">
+                    <i class="fa fa-mail-forward"></i>
+                </span>
+            <h2>Dados do usuário</h2>
+        </header>
+        <div class="padding-15">
+            <div class="widget-body padding-top-10">
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table class="table table-bordered">
+                                <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>E-mail</th>
+                                    <th>Telefone</th>
+                                    <th>Número da Conta</th>
+                                    <th>Senha</th>
+                                    <th>Server</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td id="data_user_name"></td>
+                                    <td id="data_user_email"></td>
+                                    <td id="data_user_telefone"></td>
+                                    <td><?=$conta?></td>
+                                    <td><?=$password?></td>
+                                    <td><?=$server?></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <h5>Listagem das faturas</h5>
+                            <table class="table table-bordered">
+                                <thead>
+                                <tr>
+                                    <th>Vencimento</th>
+                                    <th>Rendimento Total</th>
+                                    <th>Rendimento Líquido</th>
+                                    <th>Desconto 35%</th>
+                                    <th>Pago?</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <?php
+                                    $cotacao = $this->getConfiguracao('DOLLAR');
+                                    if(!empty($faturas)){
+                                        foreach($faturas as $fatura)
+                                        {
+                                            $vencimento = $fatura->getDueDate()->format('d/m/Y');
+                                            $rendimento_total = $fatura->getValue() * 100 / 35;
+                                            $rendimento_liquido = $rendimento_total - $fatura->getValue();
+                                            ?>
+                                            <tr >
+                                                <td><?=$vencimento?></td>
+                                                <td>$ <?= number_format($rendimento_total, 2, ',', '.');?> ou R$ <?= number_format($rendimento_total * $cotacao, 2, ',', '.');?></td>
+                                                <td>$ <?= number_format($rendimento_liquido, 2, ',', '.');?> ou R$ <?= number_format($rendimento_liquido * $cotacao, 2, ',', '.');?></td>
+                                                <td>
+                                                    <p class="txt-color-green text-bold">
+                                                        $ <?= number_format($fatura->getValue(), 2, ',', '.');?> ou R$ <?= number_format($fatura->getValue() * $cotacao, 2, ',', '.');?>
+                                                    </p>
+                                                </td>
+                                                <td><?=($fatura->getPaidOut())? "Sim" : "Não"?></td>
+                                            </tr>
+                                            <?php
+                                            if(!$fatura->getPaidOut()){
+                                                $valor_a_receber += $fatura->getValue();
+                                            }
+                                        }
+                                    }else{
+                                        ?>
+                                        <tr>
+                                            <td colspan="5">
+                                                Não há registros de fatura para esse contrato
+                                            </td>
+                                        </tr>
+                                        <?php
+                                    }
+                                ?>
+                                </tbody>
+                            </table>
+                            <h5>Valor a Receber</h5>
+                            <h4 class="alert alert-success">
+                                <strong>$ <?=number_format($valor_a_receber, 2, ',', '.');?> ou R$ <?=number_format($valor_a_receber * $cotacao, 2, ',', '.');?></strong>
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</article>
+<script>
+    $(document).ready(function () {
+        var id_user = $("#inputuser").val();
+        if(id_user){
+            $.ajax({
+                url : '/api/user/' + id_user,
+                type: "GET",
+                async: false,
+                success: function (o) {
+                    $("#data_user_name").html(o.nome);
+                    $("#data_user_email").html(o.email);
+                }
+            });
+        }
+
+        $("#inputuserLabel").blur(function () {
+            var id_user = $("#inputuser").val();
+            $.ajax({
+                url : '/api/user/' + id_user,
+                type: "GET",
+                async: false,
+                success: function (o) {
+                    $("#data_user_name").html(o.nome);
+                    $("#data_user_email").html(o.email);
+                    $("#data_user_telefone").html(o.telefone+' ou '+o.whatsapp);
+                }
+            });
+        });
+    });
+</script>

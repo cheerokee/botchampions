@@ -1,0 +1,353 @@
+<?php
+use Zend\Form\Form;
+
+/**
+ *
+ * @var Form $form
+ */
+$form = $this->form;
+
+$return = $this->url('admin/defaults',array('controller'=>'users'));
+
+$users = $this->users;
+$cidades = $this->cidades;
+$estados = $this->estados;
+/**
+ * @var User $user
+ * @var State $estado
+ * @var City $cidade
+ */
+foreach($users as $user){
+    $nomes[] = $user->getNome();
+    $usersArray[$user->getId()]['nome'] = $user->getNome();
+    $usersArray[$user->getId()]['imagem'] = $user->getImagem();
+}
+
+$count = 0;
+foreach($cidades as $cidade){
+    if($count>1)
+        continue;
+    $cidadesNomes[] = $cidade->getName().' - '.$cidade->getState()->getUf();   
+}
+$cidadesJson = json_encode($cidadesNomes);
+
+if(isset($nomes))
+    $nomes = json_encode($nomes);
+
+?>
+<div id="ribbon">
+    <span class="ribbon-button-alignment">
+        <span id="refresh" class="btn btn-ribbon" data-action="resetWidgets" data-title="refresh"  rel="tooltip" data-placement="bottom" data-original-title="<i class='text-warning fa fa-warning'></i> Warning! This will reset all your widget settings." data-html="true">
+            <i class="fa fa-refresh"></i>
+        </span>
+    </span>
+    <ol class="breadcrumb">
+        <li>
+            <a href="/admin">
+                <i class="fa fa-dashboard"></i>&nbsp;Dashboard
+            </a>
+        </li>
+        <li>Usuários</li>
+    </ol>
+</div>
+<div id="content">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <h1 class="page-title txt-color-blueDark">
+                <i class="fa-fw fa fa-puzzle-piece"></i>
+                Usuário <span>> Novo Registro. </span>
+            </h1>
+        </div>
+    </div>
+    <article style="margin-bottom: 100px" class="col-sm-12">
+        <div class="row">
+            <form method="POST" enctype="multipart/form-data" role="form" id="user" action="<?=$this->url('admin/defaults',array('controller'=>'users','action'=>'new'))?>">
+                <div class="jarviswidget" id="wid-id-<?=$this->widgetid?>"
+                 data-widget-togglebutton="false"
+                 data-widget-editbutton="false"
+                 data-widget-fullscreenbutton="false"
+                 data-widget-colorbutton="false"
+                 data-widget-deletebutton="false">
+                <header>
+                        <span class="widget-icon">
+                            <i class="fa fa-user-plus txt-color-darken"></i>
+                        </span>
+                    <h2>Novo Usuário</h2>
+                </header>
+                <div class="padding-15">
+                    <div class="widget-body padding-top-10">
+                        <input type='hidden' name="adminForm" value='1'>
+                        <div class="row">
+                            <div style="display: none" class="col-md-4">
+                                <div class="form-group">
+                                    <label for="InputIndicadoPor">Indicado Por:</label>
+                                    <?php
+                                    $field = $form->get('indicadoPor')
+                                        ->setAttribute("class","form-control")
+                                        ->setAttribute("id","InputIndicadoPor")
+                                        ->setAttribute("type","text")
+                                        ->setAttribute("value",$this->dados['indicadoPor']);
+
+                                    if(!($this->userIdentity()->getIsAdmin())) {
+                                        $field->setAttribute('disabled', 'disabled');
+                                    }
+                                    ?>
+                                    <?=$this->formelement($field);?>
+
+                                </div>
+                            </div>
+                            <?php
+                            /*
+                            ?>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="InputIndicadoPor">Indicado Por (FIFA):</label>
+                                    <?php
+                                    $field = $form->get('indicadoPorFifa')
+                                        ->setAttribute("class","form-control")
+                                        ->setAttribute("id","InputIndicadoPorFifa")
+                                        ->setAttribute("type","text")
+                                        ->setAttribute("value",$this->dados['indicadoPorFifa']);
+
+                                    if(!($this->userIdentity()->getIsAdmin())) {
+                                        $field->setAttribute('disabled', 'disabled');
+                                    }
+
+                                    ?>
+                                    <?=$this->formelement($field);?>
+
+                                </div>
+                            </div>
+                            <?php
+                            */
+                            ?>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="InputName">Nome *</label>
+                                    <?=$this->formelement(
+                                        $form->get('nome')
+                                            ->setAttribute("class","form-control")
+                                            ->setAttribute("id","InputName")
+                                            ->setAttribute("type","text")
+                                            ->setAttribute("required","required")
+                                    );?>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="InputEmail">E-mail *</label>
+                                    <?=$this->formelement(
+                                        $form->get('email')
+                                            ->setAttribute("class","form-control")
+                                            ->setAttribute("id","InputEmail")
+                                            ->setAttribute("type","email")
+                                            ->setAttribute("required","required")
+                                    );?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="InputSenha">Senha *</label>
+                                    <?=$this->formelement(
+                                        $form->get('password')
+                                            ->setAttribute("class","form-control authPass")
+                                            ->setAttribute("id","InputSenha")
+                                            ->setAttribute("type","password")
+                                            ->setAttribute("required","required")
+                                    );?>
+                                    <div style="display:none" class='alert alert-danger confirmation-alert' role='alert'>
+                                        <span class='fa fa-warning' aria-hidden='true'></span>
+                                        As senhas não conferem
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="InputRSenha">Repetir a Senha *</label>
+                                    <?=$this->formelement(
+                                        $form->get('confirmation')
+                                            ->setAttribute("class","form-control")
+                                            ->setAttribute("id","InputRSenha")
+                                            ->setAttribute("type","password")
+                                            ->setAttribute("required","required")
+                                    );?>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="InputTelefone">Telefone *</label>
+                                    <?=$this->formelement(
+                                        $form->get('telefone')
+                                            ->setAttribute("class","form-control")
+                                            ->setAttribute("id","InputTelefone")
+                                            ->setAttribute("type","text")
+                                            ->setAttribute("required","required")
+                                    );?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="InputWhatsapp">Whatsapp</label>
+                                    <?=$this->formelement(
+                                        $form->get('whatsapp')
+                                            ->setAttribute("class","form-control")
+                                            ->setAttribute("id","InputWhatsapp")
+                                            ->setAttribute("type","text")
+                                    );?>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="InputCep">CEP *</label>
+                                    <?=$this->formelement(
+                                        $form->get('cep')
+                                            ->setAttribute("class","form-control")
+                                            ->setAttribute("id","InputCep")
+                                            ->setAttribute("type","text")
+                                            ->setAttribute("required","required")
+                                    );?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <label for="InputEndereco">Endereço *</label>
+                                    <?=$this->formelement(
+                                        $form->get('endereco')
+                                            ->setAttribute("class","form-control")
+                                            ->setAttribute("id","InputEndereco")
+                                            ->setAttribute("type","text")
+                                            ->setAttribute("required","required")
+                                    );?>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="InputNumero">Número</label>
+                                    <?=$this->formelement(
+                                        $form->get('numero')
+                                            ->setAttribute("class","form-control")
+                                            ->setAttribute("id","InputNumero")
+                                            ->setAttribute("type","text")
+                                    );?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="InputComplemento">Complemento</label>
+                                    <?=$this->formelement(
+                                        $form->get('complemento')
+                                            ->setAttribute("class","form-control")
+                                            ->setAttribute("id","InputComplemento")
+                                            ->setAttribute("type","text")
+                                    );?>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="InputBairro">Bairro</label>
+                                    <?=$this->formelement(
+                                        $form->get('bairro')
+                                            ->setAttribute("class","form-control")
+                                            ->setAttribute("id","InputBairro")
+                                            ->setAttribute("type","text")
+                                    );?>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="InputBairro">Cidade *</label>
+                                    <input name="cidade" type="text" class="form-control" id="inputDefault" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="InputComplemento">RG *</label>
+                                    <?=$this->formelement(
+                                        $form->get('rg')
+                                            ->setAttribute("class","form-control")
+                                            ->setAttribute("id","InputRg")
+                                            ->setAttribute("type","text")
+                                            ->setAttribute("required","required")
+                                    );?>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="form-group">
+                                            <label for="InputComplemento">Foto</label>
+                                            <?=$this->formelement(
+                                                $form->get('imagem')
+                                                    ->setAttribute("class","form-control")
+                                                    ->setAttribute("id","InputImagem")
+                                                    ->setAttribute("accept",".jpg,.jpeg,.png")
+                                                    ->setAttribute("type","file")
+                                            );?>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div align="center">
+                                            <div style="background-image: url('<?="/img/clientes/sem_imagem.jpg"?>');"
+                                                 class=" foto-cliente">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="widget-footer padding-top-10 padding-bottom-10">
+                        <?=$this->formelement($form->get('security'))?>
+                        <?=$this->formelement($form->get('id'))?>
+                        <button type="submit" name="submit" class="btn btn-success" >
+                            <i class="fa fa-save"></i> Salvar
+                        </button>
+                        <button type="reset" name="submit" class="btn btn-info" >
+                            <i class="fa fa-eraser"></i> Limpar
+                        </button>
+                        <a class="btn btn-danger"  href="<?=$return?>">
+                            <i class="fa fa-arrow-circle-o-left"></i> Retornar
+                        </a>
+                    </div>
+                </div>
+            </div>
+            </form>
+        </div>
+    </article>
+</div>
+<script>
+<?php 
+if(isset($nomes)){
+?>
+	$("#InputIndicadoPor").autocomplete({
+	  source: <?=$nomes?>
+	});
+<?php 
+}
+
+if(isset($nomes)){
+?>
+$("#InputIndicadoPorFifa").autocomplete({
+    source: <?=$nomes?>
+});
+<?php
+}
+?>
+
+$( "input[name=cidade]" ).autocomplete({
+  source: <?=$cidadesJson?>
+});
+</script>

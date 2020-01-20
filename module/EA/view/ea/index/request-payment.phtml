@@ -1,0 +1,293 @@
+<?php
+$db_user = $this->UserIdentity('Admin');
+if(!$db_user){
+    header('Location: /auth');
+    die;
+}
+?>
+<div id="ribbon">
+    <span class="ribbon-button-alignment">
+        <span id="refresh" class="btn btn-ribbon" data-action="resetWidgets" data-title="refresh"  rel="tooltip" data-placement="bottom" data-original-title="<i class='text-warning fa fa-warning'></i> Warning! This will reset all your widget settings." data-html="true">
+            <i class="fa fa-refresh"></i>
+        </span>
+    </span>
+    <ol class="breadcrumb">
+        <li>
+            <a href="/admin">
+                <i class="fa fa-dashboard"></i>&nbsp;Dashboard
+            </a>
+        </li>
+        <li>Solicitação de Pagamento</li>
+    </ol>
+</div>
+<div class="col-xs-12">
+    <h1 class="page-title txt-color-blueDark">
+        <i class="fa-fw fa fa-desktop"></i> Solicitação de Pagamento
+    </h1>
+</div>
+<section ng-app="main" ng-controller="RequestPaymentController as rp" id="widget-grid" style="margin-bottom: 50px" class="col-md-12">
+    <div class="row">
+        <article class="col-sm-12 col-md-12">
+            <div class="jarviswidget well">
+                <div class="widget-header"></div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>
+                            Gere as faturas do mes
+                        </p>
+                        <hr class="simple">
+                    </div>
+                    <div class="col-md-12">
+                        <div class="widget-body">
+                            <form ng-submit="save($event)" >
+                                <div class="row">
+                                    <div class="col-md-4 form-group">
+                                        <label>Mes</label>
+                                        <select ng-model="yield.mes"
+                                                name="mes"
+                                                class="form-control" required>
+                                            <option value="">Selecione...</option>
+                                            <option ng-value="1" value="1">Janeiro</option>
+                                            <option ng-value="2" value="2">Fevereiro</option>
+                                            <option ng-value="3" value="3">Março</option>
+                                            <option ng-value="4" value="4">Abril</option>
+                                            <option ng-value="5" value="5">Maio</option>
+                                            <option ng-value="6" value="6">Junho</option>
+                                            <option ng-value="7" value="7">Julho</option>
+                                            <option ng-value="8" value="8">Agosto</option>
+                                            <option ng-value="9" value="9">Setembro</option>
+                                            <option ng-value="10" value="10">Outubro</option>
+                                            <option ng-value="11" value="11">Novembro</option>
+                                            <option ng-value="12" value="12">Dezembro</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4 form-group">
+                                        <label>Ano</label>
+                                        <input ng-model="yield.ano"
+                                               type="number"
+                                               class="form-control"
+                                               name="ano"
+                                               value="{{ yield.ano }}" required>
+                                    </div>
+                                    <div class="col-md-4 form-group">
+                                        <label>&nbsp;</label>
+                                        <button type="submit" class="btn btn-success form-control">
+                                            <i class="fa fa-save"></i>&nbsp;Gerar
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+        <article class="col-sm-12 col-md-12">
+            <div class="jarviswidget well">
+                <div class="widget-header"></div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>
+                            Listagem dos contratos em dívida
+                        </p>
+                        <hr class="simple">
+                    </div>
+                    <div class="col-md-12">
+                        <div class="widget-body">
+                            <div class="row">
+                                <div style="display: none" class="col-md-4 col-md-offset-8">
+                                    <article class="pull-right">
+                                        <div class="jarviswidget" >
+                                            <header>
+                                                <span class="widget-icon">
+                                                    <i class="fa fa-filter txt-color-darken"></i>
+                                                </span>
+                                                <h2>Filtro</h2>
+                                            </header>
+                                            <div class="padding-15">
+                                                <form id="filterContract" method="POST" ng-submit="filterContracts()">
+                                                    <div class="widget-body padding-top-10">
+                                                        <div class="form-group">
+                                                            <label for="filterNome">Nome</label>
+                                                            <input ng-model="filterContract.nome" class="form-control" type="text" value="" autocomplete="off">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="filterNome">Nº do Contrato</label>
+                                                            <input ng-model="filterContract.contract" class="form-control" type="number" value="" autocomplete="off">
+                                                        </div>
+                                                        <div class="widget-footer">
+                                                            <button form="filterContract" type="submit" class="btn btn-primary">
+                                                                <i class="fa fa-filter"></i>&nbsp;Filtrar
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </div>
+                            </div>
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Usuário</th>
+                                        <th>Contrato</th>
+                                        <th>Conta Vinculada</th>
+                                        <th>Vencimento</th>
+                                        <th>Valor</th>
+                                        <th>Pago?</th>
+                                        <th>Data de Pagamento</th>
+                                        <th>Ação</th>
+                                    </tr>
+                                </thead>
+                                <thead>
+                                    <tr ng-repeat="request in requests">
+                                        <td>
+                                            {{ request._embedded.ea_contract._embedded.user.nome }}<br />
+                                            {{ request._embedded.ea_contract._embedded.user.email }}
+                                        </td>
+                                        <td>
+                                            <a target="_blank" href="/ea-contract/edit/{{ request._embedded.ea_contract.id }}">
+                                                Nº {{ request._embedded.ea_contract.id }}<br />
+                                                Data Inicial {{ request._embedded.ea_contract.date_start.date | moment: 'format': 'DD/MM/YYYY'}}<br />
+                                                Data Expiração {{ request._embedded.ea_contract.date_finish.date | moment: 'format': 'DD/MM/YYYY'}}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            Nº {{ request._embedded.ea_contract._embedded.ea_xm_account.number }}<br/>
+                                            Server {{ request._embedded.ea_contract._embedded.ea_xm_account.server }}<br/>
+                                            Senha {{ request._embedded.ea_contract._embedded.ea_xm_account.password }}
+                                        </td>
+                                        <td>
+                                            {{ request.due_date.date | moment: 'format': 'DD/MM/YYYY' }}
+                                        </td>
+                                        <td>
+                                            {{ request.value | currency:'$':2:'pt-BR' }}
+                                        </td>
+                                        <td>
+                                            {{ ( request.paid_out ) ? "Sim" : "Não"  }}
+                                        </td>
+                                        <td>
+                                            {{ request.date_payment.date | moment: 'format': 'DD/MM/YYYY' }}
+                                        </td>
+                                        <td>
+                                            <button ng-hide="request.paid_out" ng-click="modalRequest(request)" class="btn btn-primary"
+                                                    data-toggle="modal"
+                                                    data-target="#modalRequest">
+                                                Solicitar Pagamento
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr ng-if="requests.length == 0">
+                                        <td colspan="8">
+                                            <p>Não há registros de contrato em dívida</p>
+                                        </td>
+                                    </tr>
+                                </thead>
+                                <tfoot>
+                                <ul class="pagination pagination-xs no-margin">
+                                    <li ng-class="{ 'disabled' : requests_page == 1 }" class="prev">
+                                        <a ng-click="prevRequests()" href="javascript:void(0);">Anterior</a>
+                                    </li>
+                                    <li ng-repeat="i in requests_pages"
+                                        ng-class="{ 'active' : i == requests_page }">
+                                        <a ng-click="loadRequests(i)" href="javascript:void(0);">
+                                            {{ i }}
+                                        </a>
+                                    </li>
+                                    <li ng-class="{ 'disabled' : requests_page == requests_total_pages }" class="next">
+                                        <a ng-click="nextRequests()" href="javascript:void(0);">Próximo</a>
+                                    </li>
+                                </ul>
+                                </tfoot>
+                            </table>
+                            <div class="modal fade"
+                                 id="modalRequest"
+                                 tabindex="-1"
+                                 role="dialog"
+                                 aria-labelledby="modalRequestLabel"
+                                 aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="modalRequestLabel">
+                                                Solicite o pagamento
+                                            </h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="row">
+                                                <div class="col-md-4 form-group">
+                                                    <label>Valor Anterior</label>
+                                                    <input type="text"
+                                                           class="form-control moeda"
+                                                           ng-model="valor_na_contratacao"
+                                                           onkeypress="mascara(this,moeda)"
+                                                           value="" required>
+                                                </div>
+                                                <div class="col-md-4 form-group">
+                                                    <label>Valor Atual</label>
+                                                    <input type="text"
+                                                           class="form-control moeda"
+                                                           ng-model="valor_atual"
+                                                           onkeypress="mascara(this,moeda)"
+                                                           value="" required>
+                                                </div>
+                                                <div class="col-md-4 form-group">
+                                                    <label>&nbsp;</label>
+                                                    <button ng-click="calculaFatura()" class="btn btn-success form-control">
+                                                        Calcular
+                                                    </button>
+                                                </div>
+                                                <div class="col-md-12 form-group">
+                                                    <table class="table table-bordered margin-top-10">
+                                                        <tr>
+                                                            <th>Rendimento Total</th>
+                                                            <th>Rendimento Liquido</th>
+                                                            <th>Valor Cobrado (35%)</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>{{ rendimento_total | currency }}</td>
+                                                            <td>{{ rendimento_liquido | currency }}</td>
+                                                            <td>{{ valor_cobrado | currency }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="3">
+                                                                Os valores serão passados ao cliente em reais ( Cotação $ 1 = R$ <?=number_format($this->getConfiguracao('DOLLAR'), 2, ',', '.')?> )
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-danger" data-dismiss="modal">
+                                                Fechar
+                                            </button>
+                                            <button ng-show="valor_cobrado && btn_send"
+
+                                                    type="button"
+                                                    class="btn btn-primary"
+                                                    ng-click="sendMailRequest()">
+                                                Enviar Cobrança no E-mail
+                                            </button>
+                                            <button ng-show="valor_cobrado && btn_save"
+                                                    ng-click="saveRequest()"
+                                                    type="button"
+                                                    class="btn btn-success">
+                                                Salvar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>

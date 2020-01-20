@@ -1,0 +1,91 @@
+<?php echo $this->doctype(); ?>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800%7CShadows+Into+Light" rel="stylesheet" type="text/css">
+        
+        <?php 
+        
+        echo $this->headTitle("Bot Champions")
+                ->setSeparator(' - ')
+                ->setAutoEscape(false);
+        
+        echo $this->headMeta()
+                ->appendName('viewport', 'width=device-width, initial-scale=1.0')
+                ->appendHttpEquiv('X-UA-Compatible', 'IE=edge');
+        
+        #CSS
+        echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/img/favicon.ico'))
+                ->prependStylesheet($this->basePath('css/jquery-ui.css'))
+                ->prependStylesheet($this->basePath('css/style.css'))                        
+                ->prependStylesheet($this->basePath('css/custom.css'))
+                ->prependStylesheet($this->basePath('css/skins/default.css'))
+                ->prependStylesheet($this->basePath('css/theme-animate.css'))
+                ->prependStylesheet($this->basePath('css/theme-shop.css'))
+                ->prependStylesheet($this->basePath('css/theme-blog.css'))
+                ->prependStylesheet($this->basePath('css/theme-elements.css'))
+                ->prependStylesheet($this->basePath('css/theme.css'))
+                ->prependStylesheet($this->basePath('css/magnific-popup.css'))
+                ->prependStylesheet($this->basePath('css/owl.theme.default.min.css'))
+                ->prependStylesheet($this->basePath('css/owl.carousel.min.css'))
+                ->prependStylesheet($this->basePath('css/font-awesome.css'))                        
+                ->prependStylesheet($this->basePath('css/bootstrap-theme.min.css'))
+                ->prependStylesheet($this->basePath('css/bootstrap.min.css'));
+        
+        #Javascripts
+        echo $this->headScript()
+                ->prependFile($this->basePath('js/geral.js'))
+                ->prependFile($this->basePath('js/theme.init.js'))
+                ->prependFile($this->basePath('js/custom.js'))
+                ->prependFile($this->basePath('js/theme.js'))
+                ->prependFile($this->basePath('js/modernizr.js'))
+                ->prependFile($this->basePath('js/vide.js'))
+                ->prependFile($this->basePath('js/jquery.magnific-popup.js'))
+                ->prependFile($this->basePath('js/jflickrfeed.js'))
+                ->prependFile($this->basePath('js/owl.carousel.js'))
+                ->prependFile($this->basePath('js/jquery.isotope.js'))
+                ->prependFile($this->basePath('js/jquery.gmap.js'))
+                ->prependFile($this->basePath('js/jquery.easy-pie-chart.js'))
+                ->prependFile($this->basePath('js/jquery.stellar.js'))
+                ->prependFile($this->basePath('js/jquery.validation.js'))
+                ->prependFile($this->basePath('js/common.js'))
+                ->prependFile($this->basePath('js/jquery-cookie.js'))
+                ->prependFile($this->basePath('js/jquery.easing.js'))
+                ->prependFile($this->basePath('js/jquery.appear.js'))
+                ->prependFile($this->basePath('js/bootstrap.min.js'))
+                ->prependFile($this->basePath('js/bootbox.js'))
+                ->prependFile($this->basePath('js/jquery-ui.min.js'))
+                ->prependFile($this->basePath('js/jquery.maskedinput.js'))
+                ->prependFile($this->basePath('js/jquery.min.js'))
+                ->prependFile($this->basePath('js/respond.min.js'), 'text/javascript', array('conditional' => 'lt IE 9',))
+                ->prependFile($this->basePath('js/html5shiv.min.js'),   'text/javascript', array('conditional' => 'lt IE 9',)); 
+         
+
+    ?>
+        <script src='https://www.google.com/recaptcha/api.js'></script>
+    </head>
+    <body>    
+        
+        <?php 
+           
+        echo $this->content; 
+        
+        ?>
+        
+        <hr>
+        <footer>
+        	<div class="container">
+        		<div class="row">
+        			<div class="col-md-12">        				 
+        				<p>Todos os Direitos Reservados.<br/>
+        				 <strong><a href="http://www.merecomais.com/">© Bot Champions <?php echo date('Y') ?>.</a></strong>
+        				 </p>
+        			</div>        			
+        		</div>
+        	</div>               
+        </footer>
+      
+        <?php echo $this->inlineScript() ?>
+        
+    </body>
+</html>

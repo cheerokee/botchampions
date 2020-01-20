@@ -1,0 +1,83 @@
+<?php
+$banco      = $this->getConfiguracaoEA("BANCOEA");
+$agencia    = $this->getConfiguracaoEA("AGENCIAEA");
+$conta      = $this->getConfiguracaoEA("CONTAEA");
+$tipo       = $this->getConfiguracaoEA("TIPOCONTAEA");
+$tipo       = ($tipo)  ? "Poupança" : "Corrente";
+$operacao   = $this->getConfiguracaoEA("OPERACAOCONTABANCOEA");
+$titular    = $this->getConfiguracaoEA("TITULAREA");
+$cnpj       = $this->getConfiguracaoEA("CNPJEA");
+$cpf       = $this->getConfiguracaoEA("CPFEA");
+$cotacao      = ($this->getConfiguracao("DOLLAR"))? $this->getConfiguracao("DOLLAR") : 1;
+?>
+
+<div ng-show="faturas.length > 0" class="col-md-12 bg-color-greenLight padding-10 txt-color-white">
+    <input type="hidden" id="cotacao" value="<?=$cotacao?>">
+    <h2 ><strong>Realize o pagamento do contrato do serviço {{ getTypeService(ea.type) }}<strong></strong></h2>
+    <h3>Conta <strong><?=$tipo?> <?=($cnpj != '')?'(Jurídica)':'';?></strong> para depósito</h3>
+    <div class="row">
+        <div class="col-md-12">Titular: <strong><?=$titular?></strong></div>
+        <?php
+        if($cnpj != ''){
+            ?>
+            <div class="col-md-12">CNPJ: <strong><?=$cnpj?></strong></div>
+            <?php
+        }
+        ?>
+        <?php
+        if($cpf != ''){
+            ?>
+            <div class="col-md-12">CPF: <strong><?=$cpf?></strong></div>
+            <?php
+        }
+        ?>
+        <div class="col-md-12">Banco: <strong><?=$banco?></strong></div>
+        <div class="col-md-12">Agência: <strong><?=$agencia?></strong></div>
+        <div class="col-md-12">Conta: <strong><?=$conta?></strong></div>
+        <div class="col-md-12">Tipo: <strong><?=$tipo?></strong></div>
+        <?=($operacao != '')?"<div class='col-md-12'>Operação: <strong>$operacao</strong></div>":"";?>
+        <div class="col-md-12 margin-top-10">
+            <h3 class="margin-top-0 margin-bottom-0">
+                {{ getTypeService(ea.type) }}: <strong>{{ ea.name }}</strong>
+            </h3>
+        </div>
+        <div class="col-md-12">
+            <h5>Relação de Rendimentos</h5>
+            <table style="margin-top: 20px" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Vencimento</th>
+                        <th>Rendimento bruto</th>
+                        <th>Rendimento líquido</th>
+                        <th>Desconto 35%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="fatura in faturas">
+                        <td>
+                            {{ fatura.due_date.date | moment: 'format': 'DD/MM/YYYY' }}
+                        </td>
+                        <td>
+                            {{ fatura.rendimento_total | currency:'R$ ':2:'pt-BR' }}
+                        </td>
+                        <td>
+                            {{ fatura.rendimento_liquido | currency:'R$ ':2:'pt-BR' }}
+                        </td>
+                        <td>
+                            {{ fatura.value | currency:'R$ ':2:'pt-BR' }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-12 margin-top-0">
+            <h3 class="margin-top-0 margin-bottom-0">
+                Valor a ser depositado: <strong>{{ total_fatura | currency:'R$ ':2:'pt-BR' }}</strong>
+            </h3>
+        </div>
+    </div>
+    <br/>
+</div>
+<div ng-show="faturas.length < 1" class="col-md-12 bg-color-greenLight padding-10 txt-color-white">
+    <h5>Não há faturas disponíveis para pagamento</h5>
+</div>

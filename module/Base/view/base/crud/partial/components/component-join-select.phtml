@@ -1,0 +1,135 @@
+<?php
+$element    = $this->element;
+$params     = $this->component_params;
+$property       = $element->getOption('property');
+$father_type    = $params['father_type'];
+
+/*
+ { ["master_field"]=>"user",["fk_field"]=>"user",["fk_table"]=> "eaxm-account" }
+*/
+$required = ($element->getAttribute('required'))?'required="required"':'';
+
+if($property != ''){
+    echo "
+        <div class='row'>
+            <div class='col-xs-9'>
+                <select name='{$element->getName()}'  class='form-control' {$required} >
+                    <option value=''>Selecione...</option>
+                </select>        
+            </div>
+            <div class='col-xs-3'>
+                <button type='button' 
+                        title='Copiar o valor selecionado' 
+                        id='btn_copy_select_{$element->getName()}'
+                        class='btn btn-success form-control btn-copy-select'>
+                    <i class='fa fa-copy'></i>
+                </button>
+            </div>
+        </div>              
+        ";
+}else{
+    echo "Esse campo requer que na definição seja setada a opção \"property\"";
+}
+
+?>
+
+<script>
+    var select_value_<?=$element->getName()?> = null;
+    function appendValues<?=str_replace('-','',$params['fk_table'])?>(value = null,selected = null){
+        $.ajax({
+            url: '/api/<?=$params['fk_table']?>',
+            type: "GET",
+            async: false,
+            data: {
+                'filter': [
+                    {
+                        'field': "<?=$params['fk_field']?>",
+                        'where': 'AND',
+                        'type': 'eq',
+                        'value': value
+                    }
+                ]
+            },
+            success: function (o) {
+                var data = o._embedded.<?=str_replace('-','_',$params['fk_table'])?>;
+                var html = '<option value="" >Selecione...</option>';
+                console.log(data);
+                for(item in data){
+                    let value = data[item].<?=$property?>;
+                    html += '<option value="' + data[item].id + '" >' + value + '</option>';
+                }
+
+                $("select[name=<?=$element->getName()?>]").html(html);
+
+                if(selected != null){
+                    $("select[name=<?=$element->getName()?>]").val(selected);
+                    $("select[name=<?=$element->getName()?>] option[value="+selected+"]").attr('selected','selected');
+                    select_value_<?=$element->getName()?> = $("select[name=<?=$element->getName()?>] option[value="+selected+"]").html();
+                }
+
+            },
+            error: function (o) {
+                alert("Houve Erro no componente Join Select, contacte o programador");
+            }
+        });
+    }
+
+    $(document).ready(function () {
+
+        <?php
+        if($element->getValue() != ''){
+            if($father_type == 'input'){
+                ?>
+                appendValues<?=str_replace('-','',$params['fk_table'])?>(
+                    $("input[name=<?=$params['master_field']?>]").val(),"<?=$element->getValue()?>"
+                );
+                <?php
+            }
+
+            if($father_type == 'select'){
+                ?>
+                appendValues<?=str_replace('-','',$params['fk_table'])?>(
+                    $("select[name=<?=$params['master_field']?>]").val(),"<?=$element->getValue()?>"
+                );
+                <?php
+            }
+        }
+
+        if($father_type == 'input'){
+            ?>
+            $("input[name=<?=$params['master_field']?>]").on("input",function () {
+                var value = this.value;
+                appendValues<?=str_replace('-','',$params['fk_table'])?>(value);
+            });
+            <?php
+        }
+
+        if($father_type == 'select'){
+            ?>
+            $("select[name=<?=$params['master_field']?>]").change(function () {
+                var value = this.value;
+                appendValues<?=str_replace('-','',$params['fk_table'])?>(value);
+            });
+            <?php
+        }
+        ?>
+
+        function copyToClipboard(text) {
+            var $temp = $("<input>");
+            $("body").append($temp);
+            $temp.val(text).select();
+            document.execCommand("copy");
+            $temp.remove();
+            alert('Agora e so colar!');
+        }
+
+        $("select[name=<?=$element->getName()?>]").change(function () {
+            var value = this.value;
+            select_value_<?=$element->getName()?> = $("select[name=<?=$element->getName()?>] option[value="+value+"]").html();
+        });
+
+        $('#btn_copy_select_<?=$element->getName()?>').click(function() {
+            copyToClipboard(select_value_<?=$element->getName()?>);
+        });
+    });
+</script>

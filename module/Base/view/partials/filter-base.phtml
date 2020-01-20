@@ -1,0 +1,73 @@
+<?php
+$functions = new \Base\Controller\BaseFunctions();
+$controller = $this->listView['controller'];
+$filters = $this->listView['filters'];
+
+$arr_element = array();
+if(!empty($this->form))
+{
+    foreach($this->form as $k => $element)
+    {
+        $arr_element[$k] = $element;
+    }
+}
+
+if(!empty($filters)) {
+    ?>
+
+    <article class="col-sm-4 pull-right">
+        <div class="jarviswidget jarviswidget-color-blueDark" id="wid-id-2" data-widget-editbutton="false">
+            <header>
+                <span class="widget-icon">
+                    <i class="fa fa-filter"></i>
+                </span>
+                <h2>Filtro</h2>
+            </header>
+            <div class="widget-body">
+                <form method="post" action="">
+                    <?php
+                    foreach ($filters as $k => $filter) {
+                        echo $this->partial('filter/'.$filter['type'],array(
+                            'em'            => $this->em,
+                            'chave'         => $k,
+                            'filter'        => $filter,
+                            'controller'    => $controller,
+                            'entity'        => $this->entity,
+                            'element'       => $arr_element[$k]
+                        ));
+                    }
+                    ?>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button class="btn btn-success form-control" name="filter-form">
+                                <i class="fa fa-filter"></i>&nbsp;Filtrar
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <?php
+                            if(isset($_SESSION['filter-form'])){
+                                $clear_filter_url = $this->url($this->listView['route'],array(
+                                    'controller'    =>  $this->controller,
+                                    'action'        =>  'clear-filter'
+                                ));
+                                ?>
+                                <a  class="btn btn-danger form-control"
+                                    name="filter-form"
+                                    href="<?=$clear_filter_url?>">
+                                    <i class="fa fa-close"></i>&nbsp;Limpar Filtro
+                                </a>
+                                <?php
+                            }
+                            ?>
+
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </article>
+
+    <?php
+}
+?>

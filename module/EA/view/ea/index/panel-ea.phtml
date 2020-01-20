@@ -1,0 +1,458 @@
+<?php
+$db_user = $this->UserIdentity('Admin');
+if(!$db_user){
+    header('Location: /auth');
+    die;
+}
+?>
+<div id="ribbon">
+    <span class="ribbon-button-alignment">
+        <span id="refresh" class="btn btn-ribbon" data-action="resetWidgets" data-title="refresh"  rel="tooltip" data-placement="bottom" data-original-title="<i class='text-warning fa fa-warning'></i> Warning! This will reset all your widget settings." data-html="true">
+            <i class="fa fa-refresh"></i>
+        </span>
+    </span>
+    <ol class="breadcrumb">
+        <li>
+            <a href="/admin">
+                <i class="fa fa-dashboard"></i>&nbsp;Dashboard
+            </a>
+        </li>
+        <li>Painel Copy Trader</li>
+    </ol>
+</div>
+<div class="col-xs-12">
+    <h1 class="page-title txt-color-blueDark">
+        <i class="fa-fw fa fa-desktop"></i> Painel <span>&gt; Contrate seu Copy Trader</span>
+    </h1>
+</div>
+<section ng-app="main" ng-controller="EaController as ea" id="widget-grid" class="col-md-12">
+    <input id="user_id" type="hidden" value="<?=$db_user->getId()?>" />
+    <div class="row">
+        <article class="col-sm-12 col-md-12">
+            <div class="jarviswidget well" id="wid-id-3" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-togglebutton="false" data-widget-deletebutton="false" data-widget-fullscreenbutton="false" data-widget-custombutton="false" data-widget-sortable="false">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-comments"></i> </span>
+                    <h2>Default Tabs with border </h2>
+                </header>
+                <div>
+                    <div class="jarviswidget-editbox">
+                    </div>
+                    <div class="widget-header">
+                        <h3>Copy Traders</h3>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <p>
+                                Contrate e gerencie seus copy traders, fique atento ao período de vencimento de cada um!
+                            </p>
+                            <hr class="simple">
+                        </div>
+                        <div class="col-md-7">
+                            <div class="widget-body">
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <h3>Listagem Serviços Automatizados</h3>
+                                            <p>Confira abaixo a listagem de serviços contratados por você, fique atento ao período de expiração.</p>
+                                        </div>
+                                    </div>
+                                    <br />
+                                </div>
+                                <ul id="myTab1" class="nav nav-tabs bordered">
+                                    <li class="active">
+                                        <a href="#t1" data-toggle="tab">
+                                            <i class="fa fa-android"></i>&nbsp;Copy Traders
+                                        </a>
+                                    </li>
+                                </ul>
+                                <div id="myTabContent1" class="tab-content padding-10">
+                                    <div class="tab-pane fade in active" id="t1">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div ng-if="contracts.length < 1" class="col-md-12 well margin-top-10 margin-bottom-10 bg-color-yellow">
+                                                    <h3 class="text-center"><i class="fa fa-frown-o"></i>&nbsp;Você ainda não possui nenhum serviço contratado</h3>
+                                                    <h4 class="text-center">
+                                                        Crie uma conta na aba <strong>"Conta Activtrades"</strong> localizado no painel da direta e vincule a conta a um serviço na aba
+                                                        <strong>"Copy Traders Disponíveis"</strong>.
+                                                    </h4>
+                                                </div>
+                                                <div ng-repeat="contract in contracts" class="col-md-12 well margin-top-10 margin-bottom-10 ">
+                                                    <h2>
+                                                        <i class="fa fa-android"></i>&nbsp;&nbsp;Conta: <strong>{{ contract._embedded.ea_xm_account.number }}</strong> - {{ (contract.date_start && contract.date_finish)? getStatus(contract.status,contract.date_start,contract.date_finish) : "Pendente" }}
+                                                    </h2>
+                                                    <hr/>
+                                                    <table class="table-bordered table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>
+                                                                    Copy Trader
+                                                                </th>
+                                                                <th>
+                                                                    Data de Início
+                                                                </th>
+                                                                <th>
+                                                                    Data de Expiração
+                                                                </th>
+                                                                <th>
+                                                                    Ação
+                                                                </th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>
+                                                                    {{ contract._embedded.ea.name }}
+                                                                </td>
+                                                                <td>
+                                                                    {{ (contract.date_start)?formatDate(contract.date_start):'Não Definido' }}
+                                                                </td>
+                                                                <td>
+                                                                    {{ (contract.date_finish)?formatDate(contract.date_finish):'Não Definido' }}
+                                                                </td>
+                                                                <td>
+                                                                    <center>
+                                                                        <button ng-click="contractingUpdate(contract,false)"
+                                                                                ng-if="(!(contract.date_start && contract.date_finish) || getStatus(contract.status,contract.date_start,contract.date_finish) == 'Pendente') && contract.status > 0" class="btn btn-success">Atualizar Comprovante</button>
+                                                                        <button ng-click="contractingUpdate(contract,true)"
+                                                                                ng-if="getStatus(contract.status,contract.date_start,contract.date_finish) == 'Em processo'"
+                                                                                class="btn btn-success">
+                                                                            Renovar Serviço
+                                                                        </button>
+                                                                        <button ng-click="contractingUpdate(contract,true)" ng-if="getStatus(contract.status,contract.date_start,contract.date_finish) == 'Finalizado'" class="btn btn-success">Renovar Serviço</button>
+                                                                        <hr />
+                                                                        <button ng-click="del(contract.id)"  ng-if="(!(contract.date_start && contract.date_finish) || (getStatus(contract.status,contract.date_start,contract.date_finish) != 'Em processo' )) && contract.payment_method == 0" class="btn btn-danger">
+                                                                            Excluir Contrato
+                                                                        </button>
+                                                                        <p ng-if="(!(contract.date_start && contract.date_finish) || (getStatus(contract.status,contract.date_start,contract.date_finish) != 'Em processo' )) && contract.payment_method == 1" class="alert alert-danger">
+                                                                            Você escolheu metodo de pagamento PayPal e marcou que o pagamento foi efetuado. Aguarde a aprovação ou se deseja cancelar a solicitação entre em contato com o administrador!
+                                                                        </p>
+                                                                    </center>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <p class="text-center padding-top-5">O Copy Trader expira em {{ getPercent(contract.date_start,contract.date_finish).restantes }} dias</p>
+                                                    <div class="progress progress-sm progress-striped active">
+                                                        <div class="progress-bar bg-color-redLight" role="progressbar" style="width: {{ getPercent(contract.date_start,contract.date_finish).percent }}%"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="widget-body">
+                                <div class="col-md-12">
+                                    <div class="row padding-top-10">
+                                        <div class="col-md-12">
+                                            <h4>Orientações</h4>
+                                            <hr />
+                                            <ul style="list-style: square;text-align: justify;padding: 0px 0px 0px 20px;margin: 0;">
+                                                <li><strong>Passo 1:</strong><br/>Cadastre sua conta da Activtrades no painel abaixo na aba "Conta Activtrades"</li>
+                                                <li><strong>Passo 2:</strong><br/>Escolha o serviço automatizado na aba "Copy Traders Disponíveis"</li>
+                                                <li><strong>Passo 3:</strong><br/>Faça a assinatura do contrato, escolha a conta, forma de pagamento e confirme.</li>
+                                            </ul>
+                                            <hr />
+                                        </div>
+                                        <div class="col-md-6">
+                                            <button onclick="$('#tab_s2').trigger('click');" class="btn btn-primary form-control">
+                                                <i class="fa fa-bank"></i>&nbsp;Conta Activtrades
+                                            </button>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <button onclick="$('#tab_s1').trigger('click');" class="btn btn-success form-control">
+                                                <i class="fa fa-android"></i>&nbsp;Copy Trader
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <br />
+                                </div>
+                                <ul id="myTab1" class="nav nav-tabs bordered">
+                                    <li class="active">
+                                        <a id="tab_s2" href="#s2" data-toggle="tab">
+                                            <i class="fa fa-bank"></i>&nbsp;Conta Activtrades <i class="fa fa-warning" style="color: #FF0;" ng-if="accounts.length < 1"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a id="tab_s1" href="#s1" data-toggle="tab">
+                                            <i class="fa fa-android"></i>&nbsp;Copy Traders Disponíveis
+                                        </a>
+                                    </li>
+                                </ul>
+                                <div id="myTabContent1" class="tab-content padding-10">
+                                    <div class="tab-pane fade in active" id="s2">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <h5>Crie ou edite sua conta na Activtrades</h5>
+                                                <hr class="simple">
+                                            </div>
+                                            <div class="col-md-12 form-group">
+                                                <label>Número da Conta</label>
+                                                <input ng-model="account_obj.number" class="form-control" type="number"  value="" />
+                                            </div>
+                                            <div class="col-md-12 form-group">
+                                                <label>Senha</label>
+                                                <input ng-model="account_obj.password" class="form-control" type="password"  value="" />
+                                            </div>
+                                            <div class="col-md-12 form-group">
+                                                <label>Server</label>
+                                                <input ng-model="account_obj.server" class="form-control" type="text"  value="" />
+                                            </div>
+                                            <div class="col-md-4 form-group">
+                                                <label>&nbsp;</label>
+                                                <button ng-show="add_account_btn" ng-click="add_account()" class="btn btn-success form-control">
+                                                    <i class="fa fa-plus"></i>&nbsp;Cadastrar
+                                                </button>
+                                                <button ng-show="update_account_btn" ng-click="update_account(account_obj.id)" class="btn btn-primary form-control">
+                                                    <i class="fa fa-plus"></i>&nbsp;Atualizar
+                                                </button>
+                                            </div>
+                                            <div class="col-md-4 form-group">
+                                                <label>&nbsp;</label>
+                                                <button ng-show="cancel_account_btn" ng-click="cancel_account()" class="btn btn-danger form-control">
+                                                    <i class="fa fa-close"></i>&nbsp;Cancelar
+                                                </button>
+                                            </div>
+                                            <div style="display: none;" class="col-md-6 form-group">
+                                                <label>&nbsp;</label>
+                                                <button ng-if="accounts.length > 0" onclick="$('#tab_s1').trigger('click')" class="btn btn-warning form-control">
+                                                    <i class="fa fa-plus"></i>&nbsp;Contratar um Serviço
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <hr class="simple">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <table class="table table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Número</th>
+                                                            <th>Server</th>
+                                                            <th>Ação</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr ng-repeat="account in accounts track by $index">
+                                                            <td>{{ account.number }}</td>
+                                                            <td>{{ account.server }}</td>
+                                                            <td>
+                                                                <button ng-if="accounts[$index].contracts < 1" title="Editar"  ng-click="edit_account(account.id)" class="btn btn-info">
+                                                                    <i class="fa fa-edit"></i> Editar
+                                                                </button>
+                                                                <button ng-if="accounts[$index].contracts < 1" title="Excluir" ng-click="del_account(account.id)" class="btn btn-danger">
+                                                                    <i class="fa fa-close"></i> Excluir
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="s1">
+                                        <div ng-if="eas.length > 0" class="row">
+                                            <div class="col-md-12">
+                                                <h4>EAs</h4>
+                                                <div class="row">
+                                                    <div ng-repeat="ea in eas" class="col-md-12 margin-bottom-5 margin-top-5">
+                                                        <div class="col-md-12 bg-color-blue padding-bottom-10">
+                                                            <div class="row">
+                                                                <div class="col-md-12 margin-top-10" ng-if="accounts.length < 1">
+                                                                    <p class="alert alert-danger text-center" >
+                                                                        Necessita de Conta na Activtrades
+                                                                    </p>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <h5 class="txt-color-white text-bold text-center margin-bottom-0">
+                                                                        {{ ea.name }}
+                                                                    </h5>
+                                                                </div>
+                                                                <div class="col-md-6 form-group">
+                                                                    <label>&nbsp;</label>
+                                                                    <button ng-if="accounts.length > 0"
+                                                                            class="btn btn-primary form-control"
+                                                                            data-toggle="modal"
+                                                                            ng-click="contracting(ea)">
+                                                                        Assinar <i class="fa fa-arrow-circle-right"></i>
+                                                                    </button>
+                                                                    <button ng-if="accounts.length < 1"
+                                                                            ng-click="appearTabAccount()"
+                                                                            class="btn btn-warning form-control">
+                                                                        Registrar Conta <i class="fa fa-arrow-circle-right"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div ng-if="mirrors.length > 0" class="row">
+                                            <div class="col-md-12">
+                                                <h4>Copy Traders</h4>
+                                                <div class="row">
+                                                    <div ng-repeat="mirror in mirrors" class="col-md-12 margin-bottom-5 margin-top-5">
+                                                        <div class="col-md-12 bg-color-blue padding-bottom-10">
+                                                            <div class="row">
+                                                                <div class="col-md-12 margin-top-10" ng-if="accounts.length < 1">
+                                                                    <p class="alert alert-danger text-center" >
+                                                                        Necessita de Conta na Activtrades
+                                                                    </p>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <h5 class="txt-color-white text-bold text-center margin-bottom-0">
+                                                                        {{ mirror.name }}
+                                                                    </h5>
+                                                                </div>
+                                                                <div class="col-md-6 form-group">
+                                                                    <label>&nbsp;</label>
+                                                                    <button ng-if="accounts.length > 0"
+                                                                            class="btn btn-primary form-control"
+                                                                            data-toggle="modal"
+                                                                            ng-click="contracting(mirror)">
+                                                                        Assinar <i class="fa fa-arrow-circle-right"></i>
+                                                                    </button>
+                                                                    <button ng-if="accounts.length < 1"
+                                                                            ng-click="appearTabAccount()"
+                                                                            class="btn btn-warning form-control">
+                                                                        Registrar Conta <i class="fa fa-arrow-circle-right"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+    <br /><br />
+    <?php
+    $termo      = $this->getConfiguracaoEA("TERMOEA");
+    ?>
+    <div class="modal fade" id="eaModal" tabindex="-1" role="dialog" aria-labelledby="eaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">
+                        <i class="fa fa-money"></i>&nbsp;&nbsp;Contratar {{ getTypeService(ea.type) }}
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <form id="ea_contract_form" ng-submit="add()" method="POST" enctype="multipart/form-data">
+                            <div ng-if="step == 1">
+                                <div class="col-md-12">
+                                    <h1 class="text-center text-bold">Passo {{ step }}</h1>
+                                    <p class="text-center">Escolha a conta bancária</p>
+                                    <br /><br/>
+                                </div>
+                                <div class="col-md-6 col-md-offset-3">
+                                    <?=$this->partial('partials/ea-select-account.phtml');?>
+                                </div>
+                                <div class="col-md-12">
+                                    <hr />
+                                    <div class="row">
+                                        <div class="col-md-4 col-md-offset-4">
+                                            <p class="text-center">
+                                                {{ step }} de 2 passos
+                                            </p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <button ng-if="contract._embedded.ea_xm_account.id" type="submit" class="btn btn-success pull-right" ng-click="nextStep()">
+                                                Próximo&nbsp;<i class="fa fa-arrow-right"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div ng-if="step == 2">
+                                <div class="col-md-12">
+                                    <h1 class="text-center text-bold">Passo {{ step }}</h1>
+                                    <p class="text-center">Realize o pagamento</p>
+                                    <br /><br />
+                                </div>
+
+                                <?=$this->partial('partials/ea-hidden.phtml');?>
+                                <div ng-show="!contract.id">
+                                    <h2 class="text-center">
+                                        Atenção!
+                                    </h2>
+                                    <h4 class="text-center">
+                                        A cada mês é feito o fechamento dos rendimentos, portanto fica acordado que a empresa
+                                        cobrará apenas <strong>35%</strong> dos lucros. Acesse os termos para mais informações.
+                                    </h4>
+                                    <h4 class="text-center">
+                                        Enviaremos mensalmente a fatura pelo e-mail, qualquer dúvida entre em contato conosco.
+                                    </h4>
+                                </div>
+
+                                <div ng-if="contract.id"  class="col-md-12 margin-top-10">
+                                    <?=$this->partial('partials/ea-panel-bank.phtml');?>
+                                </div>
+                                <div ng-if="payment_form == 0 && free != 1 && contract.id" class="col-md-6 col-md-offset-3 margin-top-10">
+                                    <?= $this->partial('partials/ea-select-receipt.phtml'); ?>
+                                </div>
+                                <div ng-if="!contract.id" class="col-md-12 margin-top-10 form-group">
+                                    <hr/>
+                                    <label>&nbsp;</label>
+                                    <input type="checkbox"
+                                           name="termo"
+                                           id="termo"
+                                           ng-model="ea_contract.term"
+                                           ng-true-value="1"
+                                           ng-false-value="0" required/>
+                                    Li, entendi, e aceito todos os <a style="text-decoration: underline"
+                                                                      target="_blank"
+                                                                      href="<?= $termo ?>">TERMOS</a>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <hr/>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <button ng-if="!contract.id" class="btn btn-danger pull-left"
+                                                    ng-click="previousStep()">
+                                                <i class="fa fa-arrow-left"></i>&nbsp;Retornar
+                                            </button>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <p class="text-center">
+                                                {{ step }} de 2 passos
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Fechar</button>
+                    <button ng-if="step == 2" ng-show="ea_contract_btn" form="ea_contract_form" type="submit" class="btn btn-success">
+                        Contratar
+                    </button>
+                    <button ng-if="ea_contract.id" form="ea_contract_form" type="submit" class="btn btn-info">
+                        Atualizar
+                    </button>
+                    <button ng-show="ea_contract_btn_disable" disabled type="submit" class="btn btn-success">
+                        <i class="fa fa-refresh fa-spin txt-color-blueDark"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

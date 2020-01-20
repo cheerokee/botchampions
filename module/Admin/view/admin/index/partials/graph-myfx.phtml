@@ -1,0 +1,215 @@
+<?php
+$em = $this->getEm();
+/**
+ * @var \Myfx\Entity\ConfigurationMyfx[] $db_configs
+ */
+$db_configs_user = $em->getRepository('Myfx\Entity\ConfigurationMyfx')->findBy(array('user' => $this->userIdentity('Admin')));
+$db_configs = $em->getRepository('Myfx\Entity\ConfigurationMyfx')->findBy(array('user' => null));
+
+$db_configs = array_merge($db_configs_user,$db_configs);
+
+$arr_confs = [];
+if(!empty($db_configs)){
+    foreach ($db_configs as $db_config){
+        if($db_config->getKeyValue() == 'LOGIN'){
+            $arr_confs[] = array(
+                'id' => $db_config->getId(),
+                'session' => $db_config->getSession(),
+                'value' => json_decode($db_config->getValue(),true)
+            );
+        }
+    }
+}
+
+if(!empty($arr_confs))
+{
+    ?>
+    <article ng-app="main" ng-controller="MyfxController as myfx" class="col-sm-12">
+        <div class="jarviswidget" id="wid-id-<?=$this->widgetid?>"
+             data-widget-togglebutton="true"
+             data-widget-editbutton="false"
+             data-widget-fullscreenbutton="false"
+             data-widget-colorbutton="false"
+             data-widget-deletebutton="true">
+            <header>
+                <span class="widget-icon">
+                    <i class="fa fa-graph txt-color-darken"></i>
+                </span>
+                <h2>Gráficos de Desempenho EA</h2>
+                <ul class="nav nav-tabs pull-right in">
+                    <li id="myfx1_tab" class="active">
+                        <a data-toggle="tab" href="#myfx1">
+                            <i class="fa fa-lg fa-android"></i>
+                            <span class="hidden-mobile hidden-tablet">
+                                Gráficos
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a id="myfx2_tab" data-toggle="tab" href="#myfx2">
+                            <i class="fa fa-lg fa-gear"></i>
+                            <span class="hidden-mobile hidden-tablet">
+                                Configure sua Conta
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+            </header>
+            <div class="padding-15">
+                <div class="widget-body padding-top-10">
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="myfx1">
+                            <div class="box-body">
+                                <?php
+
+                                foreach ($arr_confs as $arr_conf){
+                                    /**
+                                     * @var Myfx\Entity\GraphPerformance[] $db_graph_performances
+                                     */
+                                    $db_graph_performances = $em->getRepository('Myfx\Entity\GraphPerformance')->findByConfiguration($arr_conf['id']);
+                                    $username = $arr_conf['value']['username'];
+                                    $password = $arr_conf['value']['password'];
+
+                                    if(!empty($db_graph_performances)){
+                                        foreach ($db_graph_performances as $db_graph_performance) {
+                                            if($db_graph_performance->getConfiguration()->getSession() != ''){
+                                                $session = $this->testSession($db_graph_performance->getConfiguration()->getSession());
+                                            }
+
+                                            if($session == null){
+                                                $session = $this->getSession($username,$password);
+
+                                                /**
+                                                 * @var \Myfx\Entity\ConfigurationMyfx $db_config
+                                                 */
+                                                $db_config = $this->getEm()->getRepository('Myfx\Entity\ConfigurationMyfx')->findOneById($arr_conf['id']);
+                                                $db_config->setSession($session);
+                                                $this->getEm()->persist($db_config);
+                                                $this->getEm()->flush();
+                                            }
+
+                                            if($session !== null){
+                                                $account = $db_graph_performance->getAccount();
+
+                                                echo $this->getChartPerformance($account,$session);
+                                            }
+                                            $session = null;
+                                        }
+                                    }
+                                }
+                                ?>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="myfx2">
+                            <div class="box-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h2>Insira sua informações do Myfx</h2>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <p>
+                                            Tenha acesso ao desempenho das suas contas, basta inserir suas informações abaixo.<br />
+                                            Fique tranquilo, o desempenho séra visto somente por você.
+                                        </p>
+                                    </div>
+                                    <div class="col-md-4 text-center">
+                                        Não tem conta no Myfx?<br />
+                                        Acesse: <strong><a target="_blank" href="https://www.myfxbook.com">https://www.myfxbook.com</a></strong>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <hr />
+                                    </div>
+                                </div>
+                                <form method="post" id="update-rendimento" name="update-rendimento" action="<?=$action?>">
+                                    <div class="row">
+                                        <div class="bg-primary col-md-8 padding-top-10">
+                                            <div class="row">
+                                                <div class="col-md-5">
+                                                    <div class="form-group">
+                                                        <label>Usuário</label>
+                                                        <input type="text"
+                                                               class="form-control"
+                                                               id="myfx-username"
+                                                               name="username"
+                                                               ng-model="user.username"
+                                                               value="<?=(isset($_SESSION['myfx_user'])?$_SESSION['myfx_user']['username']:'')?>">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-5">
+                                                    <div class="form-group">
+                                                        <label>Senha</label>
+                                                        <input type="password"
+                                                               class="form-control"
+                                                               id="myfx-password"
+                                                               name="password"
+                                                               ng-model="user.password"
+                                                               value="<?=(isset($_SESSION['myfx_user'])?$_SESSION['myfx_user']['password']:'')?>">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2 form-group">
+                                                    <label>&nbsp;</label>
+                                                    <button type="button"
+                                                            ng-if="user.session == ''"
+                                                            class="btn btn-primary form-control" ng-click="signInMyfx()">
+                                                        <i class="fa fa-sign-in"></i>&nbsp;Logar
+                                                    </button>
+                                                    <button type="button" ng-if="user.session != ''" class="btn btn-danger form-control" ng-click="signOutMyfx()">
+                                                        <i class="fa fa-sign-in"></i>&nbsp;Deslogar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style="display: none" class="col-md-4 bg-color-greenDark padding-top-10">
+                                            <div class="form-group">
+                                                <label>Nº da conta na Activtrades</label>
+                                                <div ng-if="user.session != ''" class="input-group">
+                                                    <input type="text" class="form-control" ng-model="account" name="account" href="">
+                                                    <div type="button" class="input-group-addon btn btn-primary" ng-click="addAccount()">
+                                                        <i class="fa fa-plus"></i>&nbsp;Adicionar Conta
+                                                    </div>
+                                                </div>
+                                                <div ng-if="user.session == ''" class="input-group col-md-12">
+                                                    <p class="alert alert-danger text-center no-margin">
+                                                        <i class="fa fa-warning"></i>&nbsp;Faça o login primeiramente
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 bg-color-greenDark padding-top-10">
+                                            <table class="table table-striped">
+                                                <tr>
+                                                    <th>Código Myfx</th>
+                                                    <th>Nome da Conta</th>
+                                                    <th>Conta XM</th>
+                                                    <th>Ganho</th>
+                                                    <th>Ação</th>
+                                                </tr>
+                                                <tr ng-repeat="acc in accounts">
+                                                    <td>{{ acc.id }}</td>
+                                                    <td>{{ acc.name }}</td>
+                                                    <td>{{ acc.accountId }}</td>
+                                                    <td>{{ acc.profit | currency : "USD$" }}</td>
+                                                    <td>
+                                                        <button type="button" ng-click="addGraph(acc)" class="btn btn-success">
+                                                            <i class="fa fa-plus"></i>&nbsp;Analisar Performance
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </article>
+    <?php
+}
+?>
+
+
+
+

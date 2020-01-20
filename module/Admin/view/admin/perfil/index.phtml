@@ -1,0 +1,198 @@
+<div id="ribbon">
+    <span class="ribbon-button-alignment">
+        <span id="refresh" class="btn btn-ribbon" data-action="resetWidgets" data-title="refresh"  rel="tooltip" data-placement="bottom" data-original-title="<i class='text-warning fa fa-warning'></i> Warning! This will reset all your widget settings." data-html="true">
+            <i class="fa fa-refresh"></i>
+        </span>
+    </span>
+    <ol class="breadcrumb">
+        <li>
+            <a href="/admin">
+                <i class="fa fa-dashboard"></i>&nbsp;Dashboard
+            </a>
+        </li>
+        <li>Usuários</li>
+    </ol>
+</div>
+<div class="col-md-12 flashMessages">
+    <?php
+    $flash  =  $this->flashMessenger ();
+    echo  $flash -> render ( 'error' ,    array ( 'alert' ,  'alert-dismissible' ,  'alert-danger' ));
+    echo  $flash -> render ( 'info' ,     array ( 'alert' ,  'alert-dismissible' ,  'alert-info' ));
+    echo  $flash -> render ( 'default' ,  array ( 'alert' ,  'alert-dismissible' ,  'alert-warning' ));
+    echo  $flash -> render ( 'success' ,  array ( 'alert' ,  'alert-dismissible' ,  'alert-success' ));
+
+    ?>
+</div>
+<?php
+use Admin\Entity\Perfil;
+use Admin\Entity\User;
+
+/**
+ * @var Perfil $entity
+ * @var User $login
+ */
+$links['new'] = $this->url('admin/defaults',array('controller'=>'perfil','action'=>'new'));
+if(isset($this->data)){    
+    foreach ($this->data as $entity){
+           
+        if(empty($nomes) || !in_array($entity->getNome(), $nomes))
+            $nomes[]     =  $entity->getNome();
+        
+    }    
+    
+    if(isset($nomes))
+        $nomes = json_encode($nomes);
+  
+}
+
+$login = $this->login;
+$perfis = $this->perfis;
+#dados para permissoes
+$recurso = 'modulos';
+$item = 'perfil';
+?>
+<br />
+<?php 
+$acao = 'listAll';
+$hasPermission = $login->hasPermission($recurso,$item,$acao,$perfis);                                   
+if($hasPermission){
+?>
+<div class="row">
+    <div class="col-md-12">
+        <form id="filter_form" method="POST" action="" role="form">
+            <article class="col-sm-6 pull-right">
+                <div class="jarviswidget" id="wid-id-1"
+                     data-widget-togglebutton="false"
+                     data-widget-editbutton="false"
+                     data-widget-fullscreenbutton="false"
+                     data-widget-colorbutton="false"
+                     data-widget-deletebutton="false">
+                    <header>
+                        <span class="widget-icon">
+                            <i class="fa fa-filter txt-color-darken"></i>
+                        </span>
+                        <h2>Filtro</h2>
+                    </header>
+                    <div class="padding-15">
+                        <div class="widget-body">
+                            <div class="form-group">
+                                <label for="filterNome">Nome</label>
+                                <input type="text" name="nome" id="filterNome" class="form-control" value="<?=(isset($_POST['nome']))?$_POST['nome']:'';?>">
+                            </div>
+                        </div>
+                        <div class="widget-footer">
+                            <button name="filter" type="submit" class="btn btn-primary">Filtrar</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </form>
+    </div>
+</div>
+<?php }?>
+<div id="content">
+    <div class="row">
+        <article class="col-sm-12">
+            <div class="jarviswidget" id="wid-id-1"
+                 data-widget-togglebutton="false"
+                 data-widget-editbutton="false"
+                 data-widget-fullscreenbutton="false"
+                 data-widget-colorbutton="false"
+                 data-widget-deletebutton="false">
+                <header>
+                    <span class="widget-icon">
+                        <i class="fa fa-users txt-color-darken"></i>
+                    </span>
+                    <h2>Perfis</h2>
+                </header>
+                <div class="padding-15">
+                    <div class="widget-header padding-top-10 padding-bottom-10">
+                        <?php
+                        $acao = 'new';
+                        $hasPermission = $login->hasPermission($recurso,$item,$acao,$perfis);
+                        if($hasPermission){
+                            ?>
+                            <a href="<?=$links['new']?>">
+                                <button type="button" class="btn btn-success"><i class="fa fa-user-plus"></i> Novo</button>
+                            </a>
+                            <?php
+                        }?>
+                    </div>
+                    <div class="widget-body padding-top-10 padding-bottom-10">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Ação</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php
+                            //Outro pulo do gato
+                            if(isset($this->data))
+                                foreach ($this->data as $entity){
+                                    $links['edit'] = $this->url('admin/defaults',array('controller'=>'perfil','action'=>'edit','id'=>$entity->getId()));
+                                    $links['delete'] = $this->url('admin/defaults',array('controller'=>'perfil','action'=>'delete','id'=>$entity->getId()));
+                                    $links['permissao'] = $this->url('admin/defaults',array('controller'=>'perfil','action'=>'permissao','id'=>$entity->getId()));
+                                    ?>
+                                    <tr>
+                                        <td><?php echo $entity->getId(); ?></td>
+                                        <td><?php echo $entity->getNome(); ?></td>
+                                        <td>
+                                            <?php
+
+                                            $acao = 'edit';
+                                            $hasPermission = $login->hasPermission($recurso,$item,$acao,$perfis);
+                                            if($hasPermission){
+                                                ?>
+                                                <a href="<?=$links['edit']?>">
+                                                    <button type="button" class="btn btn-info"><i class="fa fa-edit"></i> Editar</button>
+                                                </a>
+                                                <?php
+                                            }
+
+                                            if($login->getIsAdmin()){
+                                                ?>
+                                                <a href="<?=$links['permissao']?>">
+                                                    <button type="button" class="btn btn-primary"><i class="fa fa-list"></i> Permissões</button>
+                                                </a>
+                                                <?php
+                                            }
+
+                                            $acao = 'delete';
+                                            $hasPermission = $login->hasPermission($recurso,$item,$acao,$perfis);
+                                            if($hasPermission){
+                                                ?>
+                                                <a href="<?=$links[$acao]?>">
+                                                    <button type="button" class="btn btn-danger"><i class="fa fa-close"></i> Deletar</button>
+                                                </a>
+                                                <?php
+                                            }?>
+                                        </td>
+                                    </tr>
+                                    <?php
+                                }?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</div>
+<script>
+$(document).ready(function(){
+    <?php
+
+    if(isset($nomes)){
+        ?>
+        $("input[name=nome]").autocomplete({
+          source: <?=$nomes?>
+        });
+        <?php
+    }
+
+    ?>
+    });
+</script>

@@ -1,0 +1,63 @@
+<?php
+$element    = $this->element;
+$params     = $this->component_params;
+$days       = explode(',',$params['days']);
+?>
+<div class="row">
+    <div class="col-md-12 form-group">
+        <input type="date"
+               name="<?=$element->getName()?>"
+               class="form-control"
+               id="Input<?=$element->getName()?>"
+               value="<?=$element->getValue()?>">
+        <div class="col-md-12">
+            <span class="input-group-btn">
+                <button onclick="resetar()" class="btn btn-default btn-flat" 	type="button">Hoje</button>
+                <?php
+                if(!empty($days))
+                {
+                    foreach ($days as $day) {
+                        ?>
+                        <button onclick="addDate(<?=$day?>)" class="btn btn-primary btn-flat" 	type="button">+<?=$day?></button>
+                        <?php
+                    }
+                }
+                ?>
+            </span>
+        </div>
+    </div>
+</div>
+<script>
+    function resetar(){
+        $("#Input<?=$element->getName()?>").val(formatarData(new Date()));
+    }
+
+    function addDate(num){
+        dataInicial = $("#Input<?=$element->getName()?>").val();
+        $.ajax({
+            url: '/admin/index/sum-date',
+            type: "POST",
+            async: false,
+            data:{
+                'num'       :   num,
+                'dateStart' :   dataInicial
+            },
+            success: function (o) {
+                response = JSON.parse(o);
+                $("#Input<?=$element->getName()?>").val(response.date);
+            }
+        });
+    }
+
+    function formatarData(data) {
+        var d = data,
+            mes = '' + (Number(d.getMonth()) + 1),
+            dia = '' + d.getDate(),
+            ano = d.getFullYear();
+
+        if (mes.length < 2) mes = '0' + mes;
+        if (dia.length < 2) dia = '0' + dia;
+
+        return [ano,mes,dia].join('-');
+    }
+</script>

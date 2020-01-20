@@ -1,0 +1,134 @@
+<?php
+
+$controller = $this->_listView['controller'];
+$em = $this->em;
+$link['new'] = $this->url($this->_listView['route'], array(
+    'controller' => $controller,
+    'action' => 'new'
+));
+
+if($this->UserIdentity('Admin')) {
+    $goto = array(
+        'users' => $this->url('admin')
+    );
+}
+$chave = $this->_listView['controller'];
+if(isset($goto[$chave])){
+	if(!$this->userPermission('modulos','user','listAll')) {
+
+		header('Location: '.$goto[$chave]);
+		exit();
+	}
+}
+
+?>
+<div id="ribbon">
+    <span class="ribbon-button-alignment">
+        <span id="refresh" class="btn btn-ribbon" data-action="resetWidgets" data-title="refresh"  rel="tooltip" data-placement="bottom" data-original-title="<i class='text-warning fa fa-warning'></i> Warning! This will reset all your widget settings." data-html="true">
+            <i class="fa fa-refresh"></i>
+        </span>
+    </span>
+    <ol class="breadcrumb">
+        <li>
+            <a href="/admin">
+                <i class="fa fa-dashboard"></i>&nbsp;Dashboard
+            </a>
+        </li>
+        <li><?=$this->_listView['title']?></li>
+    </ol>
+</div>
+<div id="content">
+    <div class="row">
+        <div class="col-md-12 flashMessages">
+
+            <?php
+            $flash = $this->flashMessenger();
+            echo $flash->render('error', array(
+                'alert',
+                'alert-dismissible',
+                'alert-danger'
+            ));
+            echo $flash->render('info', array(
+                'alert',
+                'alert-dismissible',
+                'alert-info'
+            ));
+            echo $flash->render('default', array(
+                'alert',
+                'alert-dismissible',
+                'alert-warning'
+            ));
+            echo $flash->render('success', array(
+                'alert',
+                'alert-dismissible',
+                'alert-success'
+            ));
+
+            ?>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <h1 class="page-title txt-color-blueDark">
+                <i class="fa  <?=$this->_listView['icon']?>"></i> &nbsp;<?=$this->_listView['title']?>
+                <small>Listagem de registros</small>
+            </h1>
+        </div>
+        <?=$this->partial('filter-base',array(
+            'em' => $em,
+            'controller' => $controller,
+            'listView' => $this->_listView,
+            'entity' => $this->entity,
+            'form'  => $this->form,
+        ));
+        ?>
+        <article class="col-sm-12">
+            <div class="jarviswidget" id="wid-id-0"
+                 data-widget-togglebutton="false"
+                 data-widget-editbutton="false"
+                 data-widget-fullscreenbutton="false"
+                 data-widget-colorbutton="false"
+                 data-widget-deletebutton="false">
+                <header>
+                    <span class="widget-icon">
+                        <i class="fa fa-bar-chart-o txt-color-darken"></i>
+                    </span>
+                    <h2>Listagem de Registros</h2>
+                </header>
+                <div class="padding-15">
+                    <div class="widget-body padding-top-10">
+                        <?php
+
+                        if($this->_listView['new']['enable'] !== false) {
+                            ?>
+                            <div class="box-tools pull-right margin-bottom-10">
+                                <div style="float: left; margin-right: 10px;" class="btn-group">
+                                    <a href="<?php echo $this->url($this->_listView['route'], array('controller' => $this->_listView['controller'], 'action' => 'new')); ?>">
+                                        <button type="button" class="btn btn-success">
+                                            <i class="fa fa-plus"></i> Novo
+                                        </button>
+                                    </a>
+                                </div>
+                            </div>
+                            <?php
+                        }
+
+                        ?>
+                        <table class="table table-responsive bg-color-white">
+                            <?=$this->partial('partial/header');?>
+                            <?=$this->partial('partial/body');?>
+                        </table>
+                    </div>
+
+                </div>
+                <div class="widget-footer">
+                    <div class="row">
+                        <div class="col-md-12 padding-bottom-10">
+                            <?=$this->paginationControl($this->data,'Sliding','partials/paginator'); ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</div>

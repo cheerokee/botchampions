@@ -1,0 +1,350 @@
+<?php
+$form=$this->form;
+
+$form->setAttribute('action',$this->url('register',array('controller'=>'index', 'action'=>'register')));
+$form->prepare();
+
+$users = $this->users;
+$cidades = $this->cidades;
+$estados = $this->estados;
+/**
+ * @var User $user
+ * @var State $estado
+ * @var City $cidade
+ */
+foreach($users as $user){
+    $nomes[] = $user->getNome();
+    $usersArray[$user->getId()]['nome'] = $user->getNome();
+    $usersArray[$user->getId()]['imagem'] = $user->getImagem();
+}
+
+$count = 0;
+foreach($cidades as $cidade){
+    if($count>1)
+        continue;
+    $cidadesNomes[] = $cidade->getName().' - '.$cidade->getState()->getUf();   
+}
+$cidadesJson = json_encode($cidadesNomes);
+
+if(isset($nomes))
+    $nomes = json_encode($nomes);
+?>
+
+<script>
+
+$(document).ready(function(){
+	<?php 
+	if(isset($nomes)){
+	?>
+    	$( "input[name=indicado]" ).autocomplete({
+    	  source: <?=$nomes?>
+    	});
+	<?php 
+    }
+
+
+    ?>
+});
+</script>
+
+<div role="main" class="main">
+    <section <?php if(!$_GET['internal']){?>style="display: none"<?php }?>  class="page-top">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <ul class="breadcrumb">
+                                <li><a target="_parent" href="http://www.merecomais.com">Home</a></li>
+                                <li class="active">Matricular</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h1>Matricule-se</h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 hidden-xs">
+                    <div align="center">
+                        <a href="http://www.merecomais.com">
+                            <img height="50" src="/img/logo/logo.png" />
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 flashMessages">
+                <?php
+                 $flash  =  $this->flashMessenger ();
+                 echo  $flash -> render ( 'error' ,    array ( 'alert' ,  'alert-dismissible' ,  'alert-danger' ));
+                 echo  $flash -> render ( 'info' ,     array ( 'alert' ,  'alert-dismissible' ,  'alert-info' ));
+                 echo  $flash -> render ( 'default' ,  array ( 'alert' ,  'alert-dismissible' ,  'alert-warning' ));
+                 echo  $flash -> render ( 'success' ,  array ( 'alert' ,  'alert-dismissible' ,  'alert-success' ));
+                 ?>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <section class="panel">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p style="text-align: center">
+                                    Já é cadastrado? Clique <a target="_parent" href="/auth">aqui</a>
+                                </p>
+                            </div>
+                        </div>
+                        <?php if($this->messages){?>
+                            <p>
+                                <?php echo $this->messages[0];?>
+                            </p>
+                        <?php
+                        }else{
+                            if(isset($_GET['indicado'])){
+                                /**
+                                 * @var User $indicado
+                                 */
+                                $indicado = $this->em->getRepository('Admin\Entity\User')->findOneById($_GET['indicado']);
+                            }
+                        ?>
+                        <form action="/register" name="user" class="form-horizontal form-bordered" method="post">
+                            <input type="hidden" name="rapidRegister" value="" />
+                            <input type="hidden" name="reference" value="register" />
+                            <fieldset>
+
+                                <div style="display: none" class="form-group">
+                                    <label class="col-md-3 control-label" for="inputIndicado">Indicado Por</label>
+                                    <div class="col-md-6">
+                                        <input name="indicado" type="text" class="form-control" id="inputIndicado" value="<?=(isset($indicado))?$indicado->getNome():'';?>">
+                                        <input name="indicadoFifa" type="hidden" class="form-control" id="inputIndicadoFifa" value="<?=(isset($indicado))?$indicado->getNome():'';?>">
+                                    </div>
+                                </div>
+                                <hr class="tall">
+                                <div class="form-group">
+                                    <label class="col-md-3 control-label" for="inputNome">Nome Completo *</label>
+                                    <div class="col-md-6">
+                                        <input name="nome" type="text" class="form-control" id="inputNome" value="<?=(isset($_POST['nome']))?$_POST['nome']:'';?>" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-3 control-label" for="inputEmail" >Seu E-mail *</label>
+                                    <div class="col-md-6">
+                                        <div class="input-group mb-md">
+                                            <input name="email" type="email" class="form-control" id="inputEmail" placeholder="" value="<?=(isset($_POST['email']))?$_POST['email']:'';?>" required>
+                                            <span class="input-group-addon btn-success">@</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-3 control-label" for="inputSenha">Senha *</label>
+                                    <div class="col-md-6">
+                                        <div class="input-group input-group-icon">
+                                            <input  name="password"  class="form-control authPass" id="inputSenha" type="password" placeholder="" value="<?=(isset($_POST['password']))?$_POST['password']:'';?>" required>
+                                            <span class="input-group-addon">
+                                                <span class="icon"><i class="fa fa-key"></i></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-md-3 control-label" for="inputConfirmacao" >Confirmação de Senha *</label>
+
+                                    <div class="col-md-6">
+                                        <div class="input-group input-group-icon">
+                                            <input name="confirmation"  class="form-control" id="inputConfirmacao" type="password" placeholder="" value="<?=(isset($_POST['confirmation']))?$_POST['confirmation']:'';?>" required>
+                                            <span class="input-group-addon">
+                                                <span class="icon"><i class="fa fa-key"></i></span>
+                                            </span>
+                                        </div>
+                                        <div style="display:none" class='alert alert-danger confirmation-alert' role='alert'>
+                                          <span class='glyphicon glyphicon-exclamation-sign' aria-hidden='true'></span>
+                                          As senhas não conferem
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr class="tall">
+                                <div class="form-group">
+                                    <label class="col-md-3 control-label " for="inputRg">RG</label>
+                                    <div class="col-md-6">
+                                        <input name="rg" type="text" class="form-control" id="inputRg" >
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-3 control-label " for="inputTelefone">Telefone *</label>
+                                    <div class="col-md-6">
+                                        <input name="telefone" type="text" class="form-control" id="inputTelefone" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-md-3 control-label" for="inputWhatsapp">Whatsapp</label>
+                                    <div class="col-md-6">
+                                        <input name="whatsapp" type="text" class="form-control" id="inputWhatsapp" >
+                                    </div>
+                                </div>
+
+                                <div style="display: none" class="form-group">
+                                    <label class="col-md-3 control-label" for="inputFacebook">Facebook</label>
+                                    <div class="col-md-6">
+                                        <input name="facebook" type="text" class="form-control" id="inputFacebook">
+                                    </div>
+                                </div>
+                                <hr class="tall">
+                                <div class="form-group">
+                                    <label class="col-md-3 control-label" for="inputCep">CEP*</label>
+                                    <div class="col-md-6">
+                                        <input name="cep" type="text" class="form-control" id="inputCep" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-3 control-label" for="inputEndereco">Endereço *</label>
+                                    <div class="col-md-6">
+                                        <input name="endereco" type="text" class="form-control" id="inputEndereco" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-3 control-label" for="inputNumero">Número</label>
+                                    <div class="col-md-6">
+                                        <input onkeypress='return SomenteNumero(event)' name="numero" type="text" class="form-control" id="inputNumero" >
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-3 control-label" for="inputComplemento">Complemento</label>
+                                    <div class="col-md-6">
+                                        <input name="complemento" type="text" class="form-control" id="inputComplemento">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-3 control-label" for="inputBairro">Bairro</label>
+                                    <div class="col-md-6">
+                                        <input name="bairro" type="text" class="form-control" id="inputBairro">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-3 control-label" for="inputCidade">Cidade *</label>
+                                    <div class="col-md-6">
+                                        <input name="cidade" type="text" class="form-control" id="inputCidade" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-md-12">
+                                        <div align="center" class="g-recaptcha" data-sitekey="6Lc3VcIUAAAAADdAZZlTbasI4MEQE_J-JyNIY5Z4"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div align="center">
+                                        <button name="matricula"  type="submit" class="btn btn-lg btn-primary"  >Cadastrar</button>
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                        </form>
+
+                    <?php }?>
+
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <div  class="">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-10 col-md-offset-1">
+                    <h2>Atenção após se cadastrar</h2>
+                </div>
+            </div>
+            <div class="row featured-boxes">
+                <div class="col-md-5 col-md-offset-1 appear-animation fadeInUp appear-animation-visible" data-appear-animation="fadeIn">
+                    <div class="featured-box featured-box-primary">
+                        <div class="box-content">
+                            <i class="icon-featured fa fa-envelope"></i>
+                            <h4>1º</h4>
+                            <p>Após o Registro de sua conta enviaremos um E-mail Automático para Confirmação.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-5 appear-animation fadeInUp appear-animation-visible" data-appear-animation="fadeIn">
+                    <div class="featured-box featured-box-secundary">
+                        <div class="box-content">
+                            <i class="icon-featured fa fa-link"></i>
+                            <h4>2º</h4>
+                            <p>Clique no Link de Confirmação da conta em seu E-mail para ter acesso a todos os Nossos Serviços.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr style="display: none" class="tall">
+            <div style="display: none"  class="row">
+                <div align="center">
+                    <h2>Aguarde o e-mail de confirmação</h2>
+                    <h2>SE PREFERIR FAÇA UMA PERGUNTA E TIRE TODAS AS DÚVIDAS</h2>
+                </div>
+            </div>
+            <div style="display: none" class="row">
+                <div class="col-lg-12">
+                    <section class="panel">
+                        <div class="panel-body">
+                            <form action="" name="contato" class="form-horizontal form-bordered" method="post">
+                                <fieldset>
+                                    <div class="form-group">
+                                        <label class="col-md-3 control-label" for="inputDefault">Seu Nome</label>
+                                        <div class="col-md-6">
+                                            <div class="input-group mb-md">
+                                                <input name="nome" type="text" class="form-control" placeholder="" required>
+                                                <span class="input-group-addon btn-primary"><i class="fa fa-user"></i></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-3 control-label" for="inputDefault">Seu Telefone</label>
+                                        <div class="col-md-6">
+                                            <div class="input-group mb-md">
+                                                <input name="telefone" type="text" class="form-control" placeholder="" required>
+                                                <span class="input-group-addon btn-primary"><i class="fa fa-phone"></i></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-3 control-label" for="inputDefault">Seu E-mail</label>
+                                        <div class="col-md-6">
+                                            <div class="input-group mb-md">
+                                                <input name="email" type="email" class="form-control" placeholder="" required>
+                                                <span class="input-group-addon btn-primary">@</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-3 control-label" for="inputDefault">Mensagem</label>
+                                        <div class="col-md-6">
+                                            <textarea name="mensagem" class="form-control" rows="3" id="textareaDefault"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-md-12">
+                                            <div class="g-recaptcha" data-sitekey="6Lc3VcIUAAAAADdAZZlTbasI4MEQE_J-JyNIY5Z4"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div align="center">
+                                            <button name="contato" type="submit" class="btn btn-lg btn-primary">Enviar</button>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
