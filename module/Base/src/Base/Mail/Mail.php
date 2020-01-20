@@ -79,7 +79,7 @@ class Mail
         $to = ($this->to)?$this->to:$config['connection_config']['from'];
         $this->setTo($to);
         $this->message = new Message;
-        $this->message->addFrom($config['connection_config']['from'],"Mais Escola de Neg&oacute;cios")      
+        $this->message->addFrom($config['connection_config']['from'],"Bot Champions")
                 ->addTo($this->to)
                 ->setSubject($this->subject)
                 ->setBody($this->body);

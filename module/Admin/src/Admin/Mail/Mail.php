@@ -80,7 +80,7 @@ class Mail
         //Pegando informações de global.php
         $config = $this->transport->getOptions()->toArray();        
         $this->message = new Message;
-        $this->message->addFrom($config['connection_config']['from'],"Mais Escola de Neg&oacute;cios")      
+        $this->message->addFrom($config['connection_config']['from'],"Bot Champions")
                 ->addTo($this->to)
                 ->setSubject($this->subject)
                 ->setBody($this->body);
@@ -205,7 +205,7 @@ class Mail
         $Email->Password = $configuracoes['connection_config']['password']; // Gmail senha
 
         if($subject == null || $subject == ''){
-            $Email->Subject = "Mais Escola de Negócios";
+            $Email->Subject = "Bot Champions";
         }else $Email->Subject = $subject;
 
         $Email->SetLanguage("br");
