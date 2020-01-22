@@ -95,8 +95,8 @@ class GetMenu extends AbstractHelper implements ServiceLocatorAwareInterface{
                 ),
             ),
             'automatic-investiment'     =>  array(
-                'title'     =>  'Expert / Espelhamento',
-                'icon'      =>  'fa-bar-chart-o',
+                'title'     =>  'Ativar meu Robô',
+                'icon'      =>  'fa-android',
                 'dropdown'  =>  array(
                     'ea-panel'  =>  array(
                         'title' => 'Painel de Serviços',

@@ -17,12 +17,12 @@ if(!$db_user){
                 <i class="fa fa-dashboard"></i>&nbsp;Dashboard
             </a>
         </li>
-        <li>Painel Copy Trader</li>
+        <li>Painel Expert Advisor</li>
     </ol>
 </div>
 <div class="col-xs-12">
     <h1 class="page-title txt-color-blueDark">
-        <i class="fa-fw fa fa-desktop"></i> Painel <span>&gt; Contrate seu Copy Trader</span>
+        <i class="fa-fw fa fa-desktop"></i> Painel <span>&gt; Contrate seu Robô Investidor</span>
     </h1>
 </div>
 <section ng-app="main" ng-controller="EaController as ea" id="widget-grid" class="col-md-12">
@@ -38,12 +38,12 @@ if(!$db_user){
                     <div class="jarviswidget-editbox">
                     </div>
                     <div class="widget-header">
-                        <h3>Copy Traders</h3>
+                        <h3>Expert Advisors</h3>
                     </div>
                     <div class="row">
                         <div class="col-md-12">
                             <p>
-                                Contrate e gerencie seus copy traders, fique atento ao período de vencimento de cada um!
+                                Contrate e gerencie seus experts advisors, fique atento ao período de vencimento de cada um!
                             </p>
                             <hr class="simple">
                         </div>
@@ -61,7 +61,7 @@ if(!$db_user){
                                 <ul id="myTab1" class="nav nav-tabs bordered">
                                     <li class="active">
                                         <a href="#t1" data-toggle="tab">
-                                            <i class="fa fa-android"></i>&nbsp;Copy Traders
+                                            <i class="fa fa-android"></i>&nbsp;Expert Advisors
                                         </a>
                                     </li>
                                 </ul>
@@ -73,7 +73,7 @@ if(!$db_user){
                                                     <h3 class="text-center"><i class="fa fa-frown-o"></i>&nbsp;Você ainda não possui nenhum serviço contratado</h3>
                                                     <h4 class="text-center">
                                                         Crie uma conta na aba <strong>"Conta Activtrades"</strong> localizado no painel da direta e vincule a conta a um serviço na aba
-                                                        <strong>"Copy Traders Disponíveis"</strong>.
+                                                        <strong>"Expert Advisors Disponíveis"</strong>.
                                                     </h4>
                                                 </div>
                                                 <div ng-repeat="contract in contracts" class="col-md-12 well margin-top-10 margin-bottom-10 ">
@@ -85,7 +85,7 @@ if(!$db_user){
                                                         <thead>
                                                             <tr>
                                                                 <th>
-                                                                    Copy Trader
+                                                                    Expert Advisor
                                                                 </th>
                                                                 <th>
                                                                     Data de Início
@@ -131,7 +131,7 @@ if(!$db_user){
                                                             </tr>
                                                         </tbody>
                                                     </table>
-                                                    <p class="text-center padding-top-5">O Copy Trader expira em {{ getPercent(contract.date_start,contract.date_finish).restantes }} dias</p>
+                                                    <p class="text-center padding-top-5">O Expert Advisor expira em {{ getPercent(contract.date_start,contract.date_finish).restantes }} dias</p>
                                                     <div class="progress progress-sm progress-striped active">
                                                         <div class="progress-bar bg-color-redLight" role="progressbar" style="width: {{ getPercent(contract.date_start,contract.date_finish).percent }}%"></div>
                                                     </div>
@@ -151,7 +151,7 @@ if(!$db_user){
                                             <hr />
                                             <ul style="list-style: square;text-align: justify;padding: 0px 0px 0px 20px;margin: 0;">
                                                 <li><strong>Passo 1:</strong><br/>Cadastre sua conta da Activtrades no painel abaixo na aba "Conta Activtrades"</li>
-                                                <li><strong>Passo 2:</strong><br/>Escolha o serviço automatizado na aba "Copy Traders Disponíveis"</li>
+                                                <li><strong>Passo 2:</strong><br/>Escolha o serviço automatizado na aba "Expert Advisors Disponíveis"</li>
                                                 <li><strong>Passo 3:</strong><br/>Faça a assinatura do contrato, escolha a conta, forma de pagamento e confirme.</li>
                                             </ul>
                                             <hr />
@@ -163,7 +163,7 @@ if(!$db_user){
                                         </div>
                                         <div class="col-md-6">
                                             <button onclick="$('#tab_s1').trigger('click');" class="btn btn-success form-control">
-                                                <i class="fa fa-android"></i>&nbsp;Copy Trader
+                                                <i class="fa fa-android"></i>&nbsp;Expert Advisor
                                             </button>
                                         </div>
                                     </div>
@@ -177,7 +177,7 @@ if(!$db_user){
                                     </li>
                                     <li>
                                         <a id="tab_s1" href="#s1" data-toggle="tab">
-                                            <i class="fa fa-android"></i>&nbsp;Copy Traders Disponíveis
+                                            <i class="fa fa-android"></i>&nbsp;Expert Advisors Disponíveis
                                         </a>
                                     </li>
                                 </ul>
@@ -291,7 +291,7 @@ if(!$db_user){
                                         </div>
                                         <div ng-if="mirrors.length > 0" class="row">
                                             <div class="col-md-12">
-                                                <h4>Copy Traders</h4>
+                                                <h4>Expert Advisors</h4>
                                                 <div class="row">
                                                     <div ng-repeat="mirror in mirrors" class="col-md-12 margin-bottom-5 margin-top-5">
                                                         <div class="col-md-12 bg-color-blue padding-bottom-10">

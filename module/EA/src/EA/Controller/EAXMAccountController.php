@@ -69,7 +69,7 @@ class EAXMAccountController extends CrudController{
                     'column'    => 'col-md-12'
                 ),
                 'ea' => array(
-                    'label'     => 'Copy Trader',
+                    'label'     => 'Expert Advisor',
                     'type'      => 'autocomplete',
                     'column'    => 'col-md-12'
                 ),
