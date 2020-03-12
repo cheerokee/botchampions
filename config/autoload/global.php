@@ -6,7 +6,7 @@ return array(
         'connection_class' => 'login',
         'connection_config' => array(
             'username' => 'contato.botchampions@gmail.com',
-            'password' => 'botqwerty',
+            'password' => '',
             'ssl' => 'tls',
             'port' => 587,
             'from' => 'contato.botchampions@gmail.com',
